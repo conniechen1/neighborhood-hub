@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviews Quality Deep Dive</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #141420;
+  --surface2: #1c1c2e;
+  --border: #2a2a40;
+  --text: #e8e8f0;
+  --text2: #9898b0;
+  --accent: #7c6cff;
+  --accent2: #ff6b9d;
+  --accent3: #00d4aa;
+  --gold: #ffd700;
+  --warm: #ff8c42;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+
+.hero{position:relative;min-height:42vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;background:linear-gradient(135deg,#0a0a2e 0%,#1a0a2e 30%,#2a1040 60%,#0a0a2e 100%)}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 30% 50%,rgba(124,108,255,.15) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(255,107,157,.1) 0%,transparent 50%)}
+.hero-content{position:relative;z-index:1;max-width:900px;padding:2rem}
+.hero h1{font-size:2.8rem;font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:.5rem}
+@media(max-width:700px){.hero h1{font-size:1.8rem}}
+.hero h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .subtitle{font-size:1.05rem;color:var(--text2);margin-bottom:1.5rem}
+.hero-stats{display:flex;gap:2rem;justify-content:center;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:2rem;font-weight:800;color:var(--accent)}
+.hero-stat-label{font-size:.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.5rem 0}
+.sticky-nav .inner{display:flex;gap:.2rem;max-width:1200px;margin:0 auto;padding:0 1rem;justify-content:center;flex-wrap:wrap}
+.sticky-nav a{color:var(--text2);text-decoration:none;padding:.4rem .65rem;font-size:.76rem;font-weight:600;border-radius:6px;transition:all .2s;white-space:nowrap}
+.sticky-nav a:hover,.sticky-nav a.active{color:var(--accent);background:rgba(124,108,255,.1)}
+
+.section{max-width:1100px;margin:0 auto;padding:3.5rem 1.5rem;scroll-margin-top:55px}
+.section-title{font-size:1.7rem;font-weight:700;margin-bottom:.3rem;letter-spacing:-.5px}
+.section-subtitle{color:var(--text2);margin-bottom:2rem;font-size:.88rem}
+.section-divider{border-top:1px solid var(--border)}
+
+.overview-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem}
+@media(max-width:800px){.overview-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:center}
+.stat-label{font-weight:700;font-size:.95rem;margin-bottom:.1rem}
+.stat-zip{font-size:.7rem;color:var(--text2);margin-bottom:.5rem}
+.stat-num{font-size:1.5rem;font-weight:800;color:var(--accent)}
+.stat-sub{font-size:.68rem;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
+.stat-num-sm{font-size:.82rem;color:var(--text2);margin-top:.25rem}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem}
+@media(max-width:700px){.three-col{grid-template-columns:1fr}}
+.col-title{font-size:1.02rem;font-weight:700;margin-bottom:1rem;color:var(--text2)}
+
+.cat-row{display:grid;grid-template-columns:120px 1fr 100px;gap:.5rem;align-items:center;margin-bottom:.5rem}
+.cat-name{font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-num{font-size:.78rem;text-align:right;color:var(--text2)}
+.cat-pct{font-size:.68rem;color:var(--text2)}
+.bar-track{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s}
+
+.matrix-table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:1rem}
+.matrix-table th{text-align:right;padding:.45rem .5rem;color:var(--text2);font-weight:600;border-bottom:1px solid var(--border)}
+.matrix-table th:first-child{text-align:left}
+.matrix-table td{text-align:right;padding:.45rem .5rem;border-bottom:1px solid rgba(42,42,64,.3)}
+.matrix-cat{text-align:left!important;font-weight:700;color:var(--accent)}
+.matrix-total{font-weight:700;color:var(--text)}
+
+.photo-cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+@media(max-width:700px){.photo-cat-grid{grid-template-columns:repeat(2,1fr)}}
+.photo-cat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center}
+.photo-cat-name{font-weight:700;font-size:.85rem;margin-bottom:.2rem;color:var(--text2)}
+.photo-cat-pct{font-size:1.9rem;font-weight:800;color:var(--accent3)}
+.photo-cat-label{font-size:.68rem;color:var(--text2)}
+.photo-cat-avg{font-size:.72rem;color:var(--text2);margin-top:.35rem;padding-top:.35rem;border-top:1px solid var(--border)}
+
+.dist-row{display:grid;grid-template-columns:50px 1fr 70px;gap:.5rem;align-items:center;margin-bottom:.4rem}
+.dist-label{font-size:.78rem;font-weight:600;text-align:right}
+.dist-num{font-size:.76rem;color:var(--text2)}
+
+.top-photo-row{display:grid;grid-template-columns:35px 1fr 100px 180px;gap:.5rem;align-items:center;padding:.45rem 0;border-bottom:1px solid rgba(42,42,64,.3);font-size:.8rem}
+.top-rank{color:var(--accent3);font-weight:800}
+.top-name{font-weight:600}
+.top-loc{color:var(--text2);font-size:.72rem}
+.top-stat{color:var(--text2);text-align:right}
+@media(max-width:700px){.top-photo-row{grid-template-columns:30px 1fr auto}.top-loc,.top-stat{display:none}}
+
+.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+@media(max-width:700px){.review-grid{grid-template-columns:1fr}}
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:border-color .2s}
+.review-card:hover{border-color:var(--accent)}
+.review-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.25rem;flex-wrap:wrap;gap:.2rem}
+.review-biz{font-weight:700;font-size:.88rem}
+.review-meta{font-size:.68rem;color:var(--text2)}
+.review-rating{margin-bottom:.35rem}
+.stars{color:var(--gold);font-size:.82rem;letter-spacing:1px}
+.review-text{font-size:.8rem;color:var(--text2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical}
+.review-photos{display:flex;gap:.4rem;margin-top:.5rem;overflow-x:auto}
+.review-photo{width:75px;height:75px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.amounts{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.35rem}
+.price-tag{background:rgba(255,140,66,.15);color:var(--warm);padding:2px 8px;border-radius:4px;font-size:.76rem;font-weight:700}
+.quality-badge{margin-top:.4rem;font-size:.68rem;color:var(--accent3);padding:2px 7px;background:rgba(0,212,170,.08);border-radius:4px;display:inline-block}
+
+.sub-title{font-size:1.1rem;font-weight:700;margin:2rem 0 .75rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.sub-title:first-of-type{border-top:none;padding-top:0}
+.callout{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:8px;padding:.9rem 1.1rem;margin:1.5rem 0;font-size:.85rem;color:var(--text2)}
+.callout strong{color:var(--text)}
+
+.price-zip-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.5rem}
+@media(max-width:800px){.price-zip-grid{grid-template-columns:repeat(2,1fr)}}
+.price-zip-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem}
+.pz-label{font-weight:700;font-size:.88rem;margin-bottom:.5rem}
+.pz-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;font-size:.78rem}
+.pz-type{color:var(--text2)}
+.pz-val{font-weight:700;color:var(--warm)}
+.pz-total{font-size:.68rem;color:var(--text2);margin-top:.4rem;padding-top:.4rem;border-top:1px solid var(--border)}
+
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.5rem 0}
+@media(max-width:700px){.insight-grid{grid-template-columns:1fr}}
+.insight-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;text-align:center}
+.insight-num{font-size:2rem;font-weight:800}
+.insight-label{font-size:.75rem;color:var(--text2);margin-top:.15rem}
+
+.sparkline-svg{width:100%;height:auto;display:block}
+.sparkline-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;overflow:hidden}
+.sparkline-label{font-weight:700;font-size:.88rem;margin-bottom:.5rem}
+.sparkline-full{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;overflow:hidden}
+
+.sent-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem}
+@media(max-width:800px){.sent-grid{grid-template-columns:repeat(2,1fr)}}
+.sent-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.9rem}
+.sent-label{font-weight:700;font-size:.88rem;margin-bottom:.5rem}
+.sent-bar-row{display:grid;grid-template-columns:65px 1fr 40px;gap:.4rem;align-items:center;margin-bottom:.3rem}
+.sent-type{font-size:.72rem;font-weight:600}
+.sent-val{font-size:.75rem;font-weight:700;text-align:right}
+
+.four-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+@media(max-width:800px){.four-grid{grid-template-columns:repeat(2,1fr)}}
+.five-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem}
+@media(max-width:800px){.five-grid{grid-template-columns:repeat(2,1fr)}}
+
+.act-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem;text-align:center}
+.act-num{font-size:1.8rem;font-weight:800}
+.act-sub{font-size:.72rem;color:var(--text2);margin-top:.1rem}
+.act-count{font-size:.7rem;color:var(--text2);margin-top:.3rem}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-content">
+    <h1>Reviews Quality <span>Deep Dive</span></h1>
+    <p class="subtitle">160,453 reviews across 6,322 businesses in 5 neighborhoods</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">160,453</div><div class="hero-stat-label">Total Reviews</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">6,322</div><div class="hero-stat-label">Businesses</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">5</div><div class="hero-stat-label">Neighborhoods</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">29.1%</div><div class="hero-stat-label">Have Photos</div></div>
+    </div>
+  </div>
+</div>
+
+<nav class="sticky-nav">
+  <div class="inner">
+    <a href="#overview">Overview</a>
+    <a href="#categories">Categories</a>
+    <a href="#photos">Photos</a>
+    <a href="#quality">Review Quality</a>
+    <a href="#sentiment">Sentiment</a>
+    <a href="#actionable">Actionable Content</a>
+    <a href="#recency">Recency</a>
+    <a href="#prices">Price Mentions</a>
+  </div>
+</nav>
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <div class="section-title">Dataset Overview</div>
+  <div class="section-subtitle">After excluding Yelp events and unclassified businesses</div>
+  <div class="overview-grid"><div class="stat-card">
+      <div class="stat-label">Long Beach</div>
+      <div class="stat-zip">90803</div>
+      <div class="stat-num">38,396</div>
+      <div class="stat-sub">reviews</div>
+      <div class="stat-num-sm">594 businesses</div>
+    </div><div class="stat-card">
+      <div class="stat-label">Mission District</div>
+      <div class="stat-zip">94110</div>
+      <div class="stat-num">84,235</div>
+      <div class="stat-sub">reviews</div>
+      <div class="stat-num-sm">4,435 businesses</div>
+    </div><div class="stat-card">
+      <div class="stat-label">SF Marina</div>
+      <div class="stat-zip">94123</div>
+      <div class="stat-num">18,910</div>
+      <div class="stat-sub">reviews</div>
+      <div class="stat-num-sm">550 businesses</div>
+    </div><div class="stat-card">
+      <div class="stat-label">Astoria</div>
+      <div class="stat-zip">11105</div>
+      <div class="stat-num">10,244</div>
+      <div class="stat-sub">reviews</div>
+      <div class="stat-num-sm">455 businesses</div>
+    </div><div class="stat-card">
+      <div class="stat-label">Menlo Park</div>
+      <div class="stat-zip">94025</div>
+      <div class="stat-num">8,668</div>
+      <div class="stat-sub">reviews</div>
+      <div class="stat-num-sm">343 businesses</div>
+    </div></div>
+</div>
+<div class="section-divider"></div>
+
+<!-- CATEGORIES -->
+<div class="section" id="categories">
+  <div class="section-title">Business Categories</div>
+  <div class="section-subtitle">6,322 unique businesses across 4 category groups</div>
+  <div class="two-col">
+    <div>
+      <div class="col-title">By Category Group</div>
+      <div class="cat-row">
+      <span class="cat-name">Other</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">2,375 <span class="cat-pct">(37.6%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">RFN</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:85.5%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">2,031 <span class="cat-pct">(32.1%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">PLAH</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:55.6%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">1,320 <span class="cat-pct">(20.9%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">PERF</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:24.1%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">573 <span class="cat-pct">(9.1%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">N/A</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:1.0%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">23 <span class="cat-pct">(0.4%)</span></span>
+    </div>
+    </div>
+    <div>
+      <div class="col-title">By Parent Category</div>
+      <div class="cat-row">
+      <span class="cat-name">restaurants</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">538 <span class="cat-pct">(8.5%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">beautysvc</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:39.4%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">212 <span class="cat-pct">(3.4%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">food</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:29.2%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">157 <span class="cat-pct">(2.5%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">health</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:28.6%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">154 <span class="cat-pct">(2.4%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">shopping</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:28.4%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">153 <span class="cat-pct">(2.4%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">active</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:24.9%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">134 <span class="cat-pct">(2.1%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">localservices</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:18.2%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">98 <span class="cat-pct">(1.6%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">realestate</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:14.3%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">77 <span class="cat-pct">(1.2%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">hotelstravel</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:13.4%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">72 <span class="cat-pct">(1.1%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">homeservices</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:12.5%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">67 <span class="cat-pct">(1.1%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">nightlife</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:8.7%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">47 <span class="cat-pct">(0.7%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">auto</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:8.2%;background:var(--accent2)"></div></div></span>
+      <span class="cat-num">44 <span class="cat-pct">(0.7%)</span></span>
+    </div>
+    </div>
+  </div>
+  <div class="sub-title">Businesses by Category x Neighborhood</div>
+  <table class="matrix-table"><thead><tr><th></th><th>Long Beach</th><th>Mission District</th><th>SF Marina</th><th>Astoria</th><th>Menlo Park</th><th>Total</th></tr></thead><tbody><tr><td class="matrix-cat">RFN</td><td>219</td><td>1,317</td><td>189</td><td>227</td><td>107</td><td class="matrix-total">2,059</td></tr><tr><td class="matrix-cat">PLAH</td><td>56</td><td>1,098</td><td>51</td><td>61</td><td>63</td><td class="matrix-total">1,329</td></tr><tr><td class="matrix-cat">PERF</td><td>57</td><td>411</td><td>46</td><td>29</td><td>36</td><td class="matrix-total">579</td></tr><tr><td class="matrix-cat">Other</td><td>260</td><td>1,589</td><td>264</td><td>137</td><td>137</td><td class="matrix-total">2,387</td></tr></tbody></table>
+  <div class="callout"><strong>Mission District dominates</strong> with 4,435 businesses vs 594 in Long Beach. "Other" (shopping, hotels, arts) is the largest group at 37.6%.</div>
+</div>
+<div class="section-divider"></div>
+
+<!-- PHOTOS -->
+<div class="section" id="photos">
+  <div class="section-title">Photo Analysis</div>
+  <div class="section-subtitle">29.1% of reviews include photos &mdash; 152,603 total across 46,716 reviews</div>
+  <div class="photo-cat-grid"><div class="photo-cat-card">
+      <div class="photo-cat-name">RFN</div>
+      <div class="photo-cat-pct">87.6%</div>
+      <div class="photo-cat-label">of businesses have photos</div>
+      <div class="photo-cat-avg">avg 62.1 photos/biz</div>
+    </div><div class="photo-cat-card">
+      <div class="photo-cat-name">PLAH</div>
+      <div class="photo-cat-pct">63.9%</div>
+      <div class="photo-cat-label">of businesses have photos</div>
+      <div class="photo-cat-avg">avg 9.9 photos/biz</div>
+    </div><div class="photo-cat-card">
+      <div class="photo-cat-name">PERF</div>
+      <div class="photo-cat-pct">66.1%</div>
+      <div class="photo-cat-label">of businesses have photos</div>
+      <div class="photo-cat-avg">avg 9.4 photos/biz</div>
+    </div><div class="photo-cat-card">
+      <div class="photo-cat-name">Other</div>
+      <div class="photo-cat-pct">21.6%</div>
+      <div class="photo-cat-label">of businesses have photos</div>
+      <div class="photo-cat-avg">avg 3.3 photos/biz</div>
+    </div></div>
+  <div class="callout"><strong>RFN businesses lead photo engagement</strong> at 87.6%, averaging 62 photos per business. Reviews with photos average a <strong>4.28</strong> rating vs <strong>4.08</strong> for those without &mdash; photo reviewers rate higher.</div>
+  <div class="two-col">
+    <div>
+      <div class="col-title">% of Reviews with Photos by Neighborhood</div>
+      <div class="cat-row">
+      <span class="cat-name">Long Beach</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:78.1%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">31.4% <span class="cat-pct">(12,062/38,396)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">Mission District</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:66.9%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">26.9% <span class="cat-pct">(22,634/84,235)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">SF Marina</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:83.3%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">33.5% <span class="cat-pct">(6,333/18,910)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">Astoria</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:79.6%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">32.0% <span class="cat-pct">(3,276/10,244)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">Menlo Park</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:69.2%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">27.8% <span class="cat-pct">(2,411/8,668)</span></span>
+    </div>
+    </div>
+    <div>
+      <div class="col-title">Photos per Review (distribution)</div>
+      <div class="dist-row">
+      <span class="dist-label">0</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">113,737</span>
+    </div><div class="dist-row">
+      <span class="dist-label">1</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:15.3%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">17,400</span>
+    </div><div class="dist-row">
+      <span class="dist-label">2</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:8.3%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">9,384</span>
+    </div><div class="dist-row">
+      <span class="dist-label">3</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:5.3%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">6,039</span>
+    </div><div class="dist-row">
+      <span class="dist-label">4</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:3.6%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">4,057</span>
+    </div><div class="dist-row">
+      <span class="dist-label">5</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:2.4%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">2,679</span>
+    </div><div class="dist-row">
+      <span class="dist-label">6</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:1.6%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">1,821</span>
+    </div><div class="dist-row">
+      <span class="dist-label">7</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:1.2%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">1,340</span>
+    </div><div class="dist-row">
+      <span class="dist-label">8</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:0.8%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">895</span>
+    </div><div class="dist-row">
+      <span class="dist-label">9</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:0.6%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">645</span>
+    </div><div class="dist-row">
+      <span class="dist-label">10+</span>
+      <span class="dist-bar"><div class="bar-track"><div class="bar-fill" style="width:2.2%;background:var(--accent3)"></div></div></span>
+      <span class="dist-num">2,456</span>
+    </div>
+    </div>
+  </div>
+  <div class="sub-title">Most Photographed Businesses</div>
+  <div class="top-photo-row">
+      <span class="top-rank">#1</span>
+      <span class="top-name">Farmhouse Kitchen Thai Cuisine</span>
+      <span class="top-loc">Menlo Park</span>
+      <span class="top-stat">1,930 photos / 617 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#2</span>
+      <span class="top-name">Bottega</span>
+      <span class="top-loc">Mission District</span>
+      <span class="top-stat">1,331 photos / 360 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#3</span>
+      <span class="top-name">Teleferic Barcelona</span>
+      <span class="top-loc">Long Beach</span>
+      <span class="top-stat">1,316 photos / 253 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#4</span>
+      <span class="top-name">Little Original Joe’s</span>
+      <span class="top-loc">SF Marina</span>
+      <span class="top-stat">1,167 photos / 273 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#5</span>
+      <span class="top-name">Komeya No Bento</span>
+      <span class="top-loc">Long Beach</span>
+      <span class="top-stat">1,038 photos / 474 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#6</span>
+      <span class="top-name">Burma Love</span>
+      <span class="top-loc">Menlo Park</span>
+      <span class="top-stat">970 photos / 233 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#7</span>
+      <span class="top-name">Nigel's</span>
+      <span class="top-loc">Long Beach</span>
+      <span class="top-stat">946 photos / 170 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#8</span>
+      <span class="top-name">Four Chairs</span>
+      <span class="top-loc">Mission District</span>
+      <span class="top-stat">937 photos / 256 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#9</span>
+      <span class="top-name">Tiya</span>
+      <span class="top-loc">SF Marina</span>
+      <span class="top-stat">908 photos / 159 reviews</span>
+    </div><div class="top-photo-row">
+      <span class="top-rank">#10</span>
+      <span class="top-name">Luna Bistro Cafe</span>
+      <span class="top-loc">Long Beach</span>
+      <span class="top-stat">906 photos / 230 reviews</span>
+    </div>
+  <div class="sub-title">Reviews WITH Photos</div>
+  <p style="color:var(--text2);font-size:.83rem;margin-bottom:.5rem">Reviewers who attach photos include 3.3 on average</p>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Thanh Tam II</span>
+        <span class="review-meta">Mission District &middot; 2024-04-11</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Huge, delicious  portions, fast service and no frills interior got this spot added to our faves. We ordered the banh xeo to share and it honestly got us 2/3rd full before our main entree came. The pancake was half a foot long and came with a lot of fresh veggies, so good! 
+Next, we got lemon grass p</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/sZHmelud-STH07rafowreg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/loVc2GxjMlt3TSpcuv4Rvg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Fogo de Chão Brazilian Steakhouse</span>
+        <span class="review-meta">Mission District &middot; 2024-09-08</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Came here for my birthday and i loved it, the cheese with honey is amazing and so is the crème brûlée. Thanks to our sever nelson gaucho, great guy. all in all it's a great place</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/aGPR4bi5G_yg_ogSG2k2Hw/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/R4t2iqHNbB7w49gIqsVowg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Finest Nails & Spa</span>
+        <span class="review-meta">Long Beach &middot; 2025-08-23</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">I am so happy with my nail design from Finest Nails! All the nail artists do a great job and are so friendly. I do ask for Helen for my nails, she does an amazing job every time and is fast! Finest nails has a great atmosphere and reputable clientele that keep coming back, including myself.</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/b730V1d3QHBFHfPa7Ceywg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/POtkuHD5GSHRYAapntlzdw/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">La Taqueria</span>
+        <span class="review-meta">Mission District &middot; 2024-07-06</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">La Taqueria is the real deal!  Long line, but worth it.  Super Vegetarian Burrito was amazing - fresh, flavorful, huge!  Great price for the quality.  Fun, energetic vibe. Don't miss it!</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/Z9dEAgBfyMMVU52XFngcYg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/REW7Q_mEACvbM8lzRZm7UA/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/4umozcNxy4547XagQZO8lw/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">A2B Movers</span>
+        <span class="review-meta">Mission District &middot; 2024-10-14</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">San and Sasha helped me seamlessly move in San Francisco! They were very cooperative, took care of all my small belongings in an organized fashion, and protected all my fragile furniture. What seemed like a daunting move, became extremely simple in 4.5 hours. Highly recommend!</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/rLsjjcUQFdL6OkPwC82VpA/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/_tSBgOof7qFU3AwtAHRNRg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/0mlxHjcLeIOUjjiEEkriVA/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Heyma Yemeni Coffee</span>
+        <span class="review-meta">Mission District &middot; 2026-01-05</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Finally a good coffee shop in Soma! I visited Heyma the past weekend with my bf and loved the vanilla date latte so much I had to go back and get a second one. The girl at the counter is super sweet and friendly. The decor makes me feel like I'm transported to Yemen. Will be coming back soon!</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/EEKP9OkLet9ayWYrYf1MrA/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/m2SUjiS3b3Vrxey3zvBiiQ/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Philz Coffee</span>
+        <span class="review-meta">Long Beach &middot; 2024-07-01</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">When in this area of town we drop by here. Recently we dined nearby and needed a coffee fix. Lol I love the mint mojito coffee. It has 2 tsp raw cane sugar or granulated +/- sugar to taste, 8-10 leaves mint, 8oz freshly brewed coffee, milk or cream of choice.( I like oat milk) and ice ( I go with li</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/CArgOZCfFtESBOwgmrxufw/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/Bny_xoh1AKHZwFY8t_8aNQ/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/8ovw6v6syuc121ex0iJgGg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">The Attic</span>
+        <span class="review-meta">Long Beach &middot; 2025-05-10</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">I wanted to say thank you to Fernando for making my bby last meal and amazing one the staff was amazing as well thank you for helping me make a good memory in a really hard time</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/nQxJ1Mp6JdPdVwcLV-u07Q/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/y7l0einDcZMZ-PkmgUZlyg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/27sNTxuHR5II0kGofCJCsg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div></div>
+  <div class="sub-title">Reviews WITHOUT Photos</div>
+  <p style="color:var(--text2);font-size:.83rem;margin-bottom:.5rem">70.9% of reviews have no photos</p>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Marina Greens</span>
+        <span class="review-meta">SF Marina &middot; 2025-10-13</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Outstanding service, always great deals. My go to spot, and they have a launge! Everybody is always been so welcoming and very knowledgeable</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Therapy Stores</span>
+        <span class="review-meta">Mission District &middot; 2025-06-03</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Such a cuteee gift shop filled with lots of unique and interesting items--perfect for finding something special. The service was friendly and welcoming, which made browsing even more enjoyable.</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Ippudo San Francisco</span>
+        <span class="review-meta">Mission District &middot; 2024-08-23</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></div>
+      
+      <p class="review-text">Decor was great and they even provide storage under your seat so you could put your backpacks/purses without it getting dirty, just like they do in Asia! The service was great and my friends got our food pretty quick after ordering. The ramen was good, nothing too crazy to rave about, but I especial</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Farmhouse Kitchen Thai Cuisine</span>
+        <span class="review-meta">Mission District &middot; 2024-03-10</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></div>
+      
+      <p class="review-text">Good food, but my expectations were not met. Great presentation, but I wasn't wow'd by the flavor/taste. The service was poor. We sat outside as they weren't hosting anyone inside that day.</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Go Duck Yourself</span>
+        <span class="review-meta">Mission District &middot; 2024-04-29</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Absolutely delicious. I first discovered them during the pandemic and have been a fan ever since. Their meat is well sourced from farms and is always spot on. Sauces are excellent too.</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Farmhouse Kitchen Thai Cuisine</span>
+        <span class="review-meta">Menlo Park &middot; 2024-09-21</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Great food and great service! Sat on the porch and the flowers were a nice touch!
+
+Had pad see ew and yellow curry. Both were great and had the option to be made without shellfish.</p>
+      
+    </div></div>
+</div>
+<div class="section-divider"></div>
+
+<!-- REVIEW QUALITY -->
+<div class="section" id="quality">
+  <div class="section-title">Review Quality</div>
+  <div class="section-subtitle">How detailed and useful are the reviews?</div>
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--accent)">475</div>
+      <div class="insight-label">avg characters per review</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--accent)">325</div>
+      <div class="insight-label">median characters</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--accent3)">29.1%</div>
+      <div class="insight-label">include photos</div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="col-title">Rating Distribution</div>
+      <div class="cat-row">
+      <span class="cat-name">1 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:18.8%;background:#ef4444"></div></div></span>
+      <span class="cat-num">19,447</span>
+    </div><div class="cat-row">
+      <span class="cat-name">2 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:6.4%;background:#f97316"></div></div></span>
+      <span class="cat-num">6,584</span>
+    </div><div class="cat-row">
+      <span class="cat-name">3 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:9.3%;background:#eab308"></div></div></span>
+      <span class="cat-num">9,560</span>
+    </div><div class="cat-row">
+      <span class="cat-name">4 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:21.0%;background:#84cc16"></div></div></span>
+      <span class="cat-num">21,653</span>
+    </div><div class="cat-row">
+      <span class="cat-name">5 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:#22c55e"></div></div></span>
+      <span class="cat-num">103,191</span>
+    </div>
+    </div>
+    <div>
+      <div class="col-title">Review Length Distribution</div>
+      <div class="cat-row">
+      <span class="cat-name"><50 chars</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:0.1%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">39</span>
+    </div><div class="cat-row">
+      <span class="cat-name">50-150</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:73.0%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">31,442</span>
+    </div><div class="cat-row">
+      <span class="cat-name">150-300</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">43,073</span>
+    </div><div class="cat-row">
+      <span class="cat-name">300-500</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:81.2%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">34,981</span>
+    </div><div class="cat-row">
+      <span class="cat-name">500-1000</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:81.0%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">34,885</span>
+    </div><div class="cat-row">
+      <span class="cat-name">1000+</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:37.2%;background:var(--accent)"></div></div></span>
+      <span class="cat-num">16,033</span>
+    </div>
+    </div>
+  </div>
+  <div class="sub-title">Avg Review Length by Rating</div>
+  <p style="color:var(--text2);font-size:.83rem;margin-bottom:.75rem">Do unhappy reviewers write more?</p>
+  <div class="cat-row">
+      <span class="cat-name">1 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:89.3%;background:#ef4444"></div></div></span>
+      <span class="cat-num">626 chars <span class="cat-pct">(19,447)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">2 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:90.9%;background:#f97316"></div></div></span>
+      <span class="cat-num">637 chars <span class="cat-pct">(6,584)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">3 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:88.3%;background:#eab308"></div></div></span>
+      <span class="cat-num">619 chars <span class="cat-pct">(9,560)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">4 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:79.2%;background:#84cc16"></div></div></span>
+      <span class="cat-num">555 chars <span class="cat-pct">(21,653)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">5 &#9733;</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:57.9%;background:#22c55e"></div></div></span>
+      <span class="cat-num">406 chars <span class="cat-pct">(103,191)</span></span>
+    </div>
+  <div class="callout"><strong>1-star reviews are the longest</strong> &mdash; negative experiences drive the most detailed feedback. 5-star reviews are shorter, often expressing enthusiasm concisely.</div>
+  <div class="two-col" style="margin-top:2rem">
+    <div>
+      <div class="col-title">Avg Length by Neighborhood</div>
+      <div class="cat-row">
+      <span class="cat-name">Long Beach</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:79.5%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">434 chars</span>
+    </div><div class="cat-row">
+      <span class="cat-name">Mission District</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:90.9%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">496 chars</span>
+    </div><div class="cat-row">
+      <span class="cat-name">SF Marina</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:84.5%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">461 chars</span>
+    </div><div class="cat-row">
+      <span class="cat-name">Astoria</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:84.9%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">463 chars</span>
+    </div><div class="cat-row">
+      <span class="cat-name">Menlo Park</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:90.4%;background:var(--accent3)"></div></div></span>
+      <span class="cat-num">493 chars</span>
+    </div>
+    </div>
+    <div>
+      <div class="col-title">Avg Length by Category</div>
+      <div class="cat-row">
+      <span class="cat-name">RFN</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:68.0%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">461 chars</span>
+    </div><div class="cat-row">
+      <span class="cat-name">PLAH</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:66.4%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">450 chars</span>
+    </div><div class="cat-row">
+      <span class="cat-name">PERF</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:90.9%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">616 chars</span>
+    </div><div class="cat-row">
+      <span class="cat-name">Other</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:76.3%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">517 chars</span>
+    </div>
+    </div>
+  </div>
+  <div class="sub-title">High Quality Reviews (500+ chars, 5 stars, with photos)</div>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Dawn Club</span>
+        <span class="review-meta">Mission District &middot; 2024-05-20</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Gorgeous! Wonderful! Glorious Jazz in a beautiful Art Deco Setting. If you're looking to feel like the main character out of a vintage noir film, The Dawn Club is the perfect backdrop.
+
+I was in San Francisco all week for work and I knew if I didn't visit at least one jazz club, I was going to kick myself. When do I have the opportunity to visit such a great city solo? Rarely! and I needed to take advantage! So, after a few swipes on yelp, I ended up at the Dawn Club.
+
+I arrived at 8pm sharp. I </p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/J3MAIsRKsS_DkTq1gb_3Eg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><div class="quality-badge">1,469 chars &middot; 1 photos</div></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Diwali Indian Cuisine</span>
+        <span class="review-meta">Mission District &middot; 2025-04-19</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">food was so yummy, tried alot of new things tonight:
+- chicken tikka dosa
+- king fish
+- palak paneer
+- fresh lemon soda (salty AND sweet)
+- gobi 65
+i think we ordered more and it was all so great! the atmosphere felt very homey, especially because the owners were so welcoming. since it was their second day of opening, they asked for feedback and were genuinely open to it (though our feedback was only positive, no notes!) 
+took home a mango lassi to go for the husband and that was YUMMY
+i will de</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/guaiGCvgVQoTO6Bqzv6Q4A/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/Mmwmmmmhfv72IDPnio-f2Q/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><div class="quality-badge">609 chars &middot; 6 photos</div></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Mijoté</span>
+        <span class="review-meta">Mission District &middot; 2025-07-13</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Wow, what an experience I had here.
+
+Service is top knit h, everyone is so nice and warm. They're very attentive and what was pretty neat was there seemed to be someone different bringing dishes to us every time which I thought was cool and collaborative about their flow.
+
+Highly recommend the wine pairing with the meal, just elevates the experience that much more. If you get the add-ons be mindful that the portions on the set course menu are pretty generous. I was struggling after the beef chee</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/TwRTIx87lTKhZdx-a5yUGQ/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><div class="quality-badge">783 chars &middot; 1 photos</div></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Simmzy's</span>
+        <span class="review-meta">Long Beach &middot; 2024-06-23</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Delicious American Cuisine
+
+15 Minute Wings  10/10
+- definitely worth the 15 minute wait 
+- Great balance of sweet and spicy, not too really spicy  
+- Blue cheese dip pairs well with these wings
+
+Pork Belly Slider 10/10
+- full of flavor, Thai glaze is on the sweeter side 
+- Taste authentic 
+
+Chicken Apple Walnut & Drake Farm Goat Cheese 10/10
+- Great combination of variety of ingredients 
+- Sweet and savory salad 
+- I come constantly for just this salad, one of my favorite dishes here 
+
+Crispy K</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/3JPDZ74khsPINpTfxueWxg/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/c_rFsqSRLMGO2xLtTRNjww/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><div class="quality-badge">2,118 chars &middot; 3 photos</div></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Legends</span>
+        <span class="review-meta">Long Beach &middot; 2024-09-04</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">My fantasy football league once again enjoyed making Legends our draft central location.  We really dig the atmosphere and service.  Kudos to server Cassidy J who kept us hydrated and well fed, she was very attentive and had a fun personality. 
+
+This is our 3rd time having our draft here, and it will not be our last.  They have a notable beer selection and great pub grub.  We enjoyed the onion rings, kitchen sink nachos, carnitas tacos, baja fish tacos, bacon skins, and the legendary wings.  ALL</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/ajovO41S5ji53mljFzzq3w/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/kc2YVmM3qtFgW7MDnqxPMw/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><div class="quality-badge">635 chars &middot; 5 photos</div></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">DDS Derek's Mobile Detailing Service</span>
+        <span class="review-meta">Mission District &middot; 2024-04-24</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">"Great Service by Derek!
+
+I recently had my Toyota Camry detailed by Derek, and I'm really impressed with his work. Derek manages everything himself, and his dedication shows in the results.
+
+Booking with Derek was easy, and he was flexible with my schedule. When I arrived, Derek was friendly and took the time to understand what I wanted for my car.
+
+Derek's attention to detail was excellent. He cleaned every part of my Camry thoroughly using high-quality products and tools.
+
+What stands out abo</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/yRMh8igR3Hd9M4QuKkoF1g/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><div class="quality-badge">874 chars &middot; 1 photos</div></div>
+    </div></div>
+  <div class="sub-title">Low Quality Reviews (&lt;50 characters)</div>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">ARCO</span>
+        <span class="review-meta">Mission District &middot; 2024-05-22</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Workers are very cool.</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Big Apple Renovators - Astoria</span>
+        <span class="review-meta">Astoria &middot; 2024-11-09</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      
+      <p class="review-text">Bad service. Away from this company.</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Left Door</span>
+        <span class="review-meta">SF Marina &middot; 2024-02-16</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span></div>
+      
+      <p class="review-text">#ERROR!</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">El Zorbo Biggest Balls</span>
+        <span class="review-meta">Mission District &middot; 2024-01-23</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">i was touched by the owners balls!</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Opavita</span>
+        <span class="review-meta">Mission District &middot; 2024-11-14</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Beautiful!</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Greg Wieting</span>
+        <span class="review-meta">Mission District &middot; 2025-06-17</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Are you Greg?</p>
+      
+    </div></div>
+</div>
+<div class="section-divider"></div>
+
+<!-- SENTIMENT -->
+<div class="section" id="sentiment">
+  <div class="section-title">Sentiment Signals</div>
+  <div class="section-subtitle">Keyword-based detection of positive and negative language in reviews</div>
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--accent3)">66.2%</div>
+      <div class="insight-label">use positive language<br>(106,229 reviews)</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--accent2)">8.6%</div>
+      <div class="insight-label">use negative language<br>(13,784 reviews)</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--text2)">25.2%</div>
+      <div class="insight-label">neutral / mixed tone</div>
+    </div>
+  </div>
+  <div class="sub-title">By Neighborhood</div>
+  <div class="sent-grid"><div class="sent-card">
+      <div class="sent-label">Long Beach</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:90.4%;background:var(--accent3)"></div></div>
+          <span class="sent-val">72.3%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:9.6%;background:var(--accent2)"></div></div>
+          <span class="sent-val">7.7%</span>
+        </div>
+      </div>
+    </div><div class="sent-card">
+      <div class="sent-label">Mission District</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:78.4%;background:var(--accent3)"></div></div>
+          <span class="sent-val">62.7%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:10.8%;background:var(--accent2)"></div></div>
+          <span class="sent-val">8.6%</span>
+        </div>
+      </div>
+    </div><div class="sent-card">
+      <div class="sent-label">SF Marina</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:86.1%;background:var(--accent3)"></div></div>
+          <span class="sent-val">68.9%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:11.5%;background:var(--accent2)"></div></div>
+          <span class="sent-val">9.2%</span>
+        </div>
+      </div>
+    </div><div class="sent-card">
+      <div class="sent-label">Astoria</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:84.1%;background:var(--accent3)"></div></div>
+          <span class="sent-val">67.3%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:13.0%;background:var(--accent2)"></div></div>
+          <span class="sent-val">10.4%</span>
+        </div>
+      </div>
+    </div><div class="sent-card">
+      <div class="sent-label">Menlo Park</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:82.9%;background:var(--accent3)"></div></div>
+          <span class="sent-val">66.3%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:11.0%;background:var(--accent2)"></div></div>
+          <span class="sent-val">8.8%</span>
+        </div>
+      </div>
+    </div></div>
+  <div class="sub-title">By Category</div>
+  <div class="four-grid" style="margin-top:.5rem"><div class="sent-card">
+      <div class="sent-label">RFN</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:88.0%;background:var(--accent3)"></div></div>
+          <span class="sent-val">70.4%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:11.2%;background:var(--accent2)"></div></div>
+          <span class="sent-val">9.0%</span>
+        </div>
+      </div>
+    </div><div class="sent-card">
+      <div class="sent-label">PLAH</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:64.1%;background:var(--accent3)"></div></div>
+          <span class="sent-val">51.3%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:7.6%;background:var(--accent2)"></div></div>
+          <span class="sent-val">6.1%</span>
+        </div>
+      </div>
+    </div><div class="sent-card">
+      <div class="sent-label">PERF</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:73.2%;background:var(--accent3)"></div></div>
+          <span class="sent-val">58.6%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:11.1%;background:var(--accent2)"></div></div>
+          <span class="sent-val">8.9%</span>
+        </div>
+      </div>
+    </div><div class="sent-card">
+      <div class="sent-label">Other</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent3)">Positive</span>
+          <div class="bar-track"><div class="bar-fill" style="width:73.9%;background:var(--accent3)"></div></div>
+          <span class="sent-val">59.1%</span>
+        </div>
+        <div class="sent-bar-row">
+          <span class="sent-type" style="color:var(--accent2)">Negative</span>
+          <div class="bar-track"><div class="bar-fill" style="width:10.5%;background:var(--accent2)"></div></div>
+          <span class="sent-val">8.4%</span>
+        </div>
+      </div>
+    </div></div>
+  <div class="callout"><strong>PLAH services have the highest negative rate</strong> at ~6.1%, while RFN (restaurants/food) has the highest positive rate. This makes sense &mdash; bad service experiences (plumbing, moving, repairs) generate stronger negative reactions.</div>
+</div>
+<div class="section-divider"></div>
+
+<!-- ACTIONABLE CONTENT -->
+<div class="section" id="actionable">
+  <div class="section-title">Actionable Content</div>
+  <div class="section-subtitle">What signals make reviews useful for consumers and businesses?</div>
+  <div class="five-grid">
+    <div class="act-card">
+      <div class="act-num" style="color:var(--accent)">1.1%</div>
+      <div class="act-sub">mention an employee by name</div>
+      <div class="act-count">1,766 reviews</div>
+    </div>
+    <div class="act-card">
+      <div class="act-num" style="color:var(--accent3)">30.6%</div>
+      <div class="act-sub">mention a specific dish (RFN)</div>
+      <div class="act-count">34,034 reviews</div>
+    </div>
+    <div class="act-card">
+      <div class="act-num" style="color:var(--gold)">12.5%</div>
+      <div class="act-sub">express return intent</div>
+      <div class="act-count">20,128 reviews</div>
+    </div>
+    <div class="act-card">
+      <div class="act-num" style="color:var(--accent3)">10.8%</div>
+      <div class="act-sub">explicitly recommend</div>
+      <div class="act-count">17,377 reviews</div>
+    </div>
+    <div class="act-card">
+      <div class="act-num" style="color:var(--accent2)">6.5%</div>
+      <div class="act-sub">warn others away</div>
+      <div class="act-count">10,503 reviews</div>
+    </div>
+  </div>
+  <div class="sub-title">Actionable Signals by Neighborhood</div>
+  <table class="matrix-table"><thead><tr><th></th><th>Employee Name</th><th>Return Intent</th><th>Recommend</th><th>Warning</th></tr></thead><tbody><tr>
+      <td class="matrix-cat">Long Beach</td>
+      <td>1.7%</td>
+      <td>14.7%</td>
+      <td>10.9%</td>
+      <td>5.4%</td>
+    </tr><tr>
+      <td class="matrix-cat">Mission District</td>
+      <td>0.9%</td>
+      <td>11.3%</td>
+      <td>10.6%</td>
+      <td>7.0%</td>
+    </tr><tr>
+      <td class="matrix-cat">SF Marina</td>
+      <td>1.0%</td>
+      <td>13.3%</td>
+      <td>11.7%</td>
+      <td>5.9%</td>
+    </tr><tr>
+      <td class="matrix-cat">Astoria</td>
+      <td>0.8%</td>
+      <td>14.3%</td>
+      <td>11.2%</td>
+      <td>8.5%</td>
+    </tr><tr>
+      <td class="matrix-cat">Menlo Park</td>
+      <td>1.3%</td>
+      <td>12.0%</td>
+      <td>10.3%</td>
+      <td>6.0%</td>
+    </tr></tbody></table>
+  <div class="callout"><strong>12.5% of reviews say "will be back"</strong> &mdash; a strong signal of loyalty. Meanwhile 6.5% actively warn others away. Recommendations outpace warnings roughly 2:1.</div>
+  <div class="sub-title">Recommendation Reviews</div>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Therapy Stores</span>
+        <span class="review-meta">Mission District &middot; 2024-12-28</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Therapy Stores on Valencia Street is the perfect spot to find a unique gift for someone special--or to treat yourself!
+
+The moment I walked in, I was greeted with a warm welcome and a big smile. The staff are incredibly helpful and always seem to have the best suggestions, especially when you're unsure of what to pick.
+
+The store has an amazing sel</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Curry Hyuga</span>
+        <span class="review-meta">Mission District &middot; 2024-04-23</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Greeted right away when entering and the service was quick. They even have a call button you can press when you're ready to order.
+
+Food was amazing for the price and very filling. My favorite would have to be their new menu the curry udon. I love how they have different levels of spices that you can add (my favorite was the level 4 Birds Eye chili</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Olive By The Bay</span>
+        <span class="review-meta">Long Beach &middot; 2024-06-12</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Yummy food with a great menu to select from! The service was very friendly but a bit frantic as they just opened. I will be back and really enjoyed what we ordered! Highly recommend the cookie butter crepe</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/CcapcS-nb7bCOr58OeqMjA/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/bNHybiVObg09x2M8EPRRkA/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Yossies Cantina</span>
+        <span class="review-meta">Mission District &middot; 2025-10-23</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Can't believe I didn't come here sooner!! Some of the best Mexican food in the city! Friendly atmosphere and great service this place is the whole package!! Will definitely come back. I highly recommend the Camerones Karina but any of the shrimp or fish dishes are really next level !</p>
+      <div class="review-photos"><img src="https://yelp-images.s3.amazonaws.com/bphoto/BDPMCZA8FsWNZZU7aWyiCA/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"><img src="https://yelp-images.s3.amazonaws.com/bphoto/1du3wLdd0AshSpZKOO05Cw/l.jpg" loading="lazy" class="review-photo" onerror="this.style.display='none'"></div>
+    </div></div>
+  <div class="sub-title">Warning Reviews</div>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Best Buy</span>
+        <span class="review-meta">Mission District &middot; 2024-07-08</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      
+      <p class="review-text">Microsoft locked my account. When I asked why I was told it was because I violated their terms of agreement. I wrote back about 8 times asking for an explanation and they gave none. I called all their phone numbers and they all had a recording saying go online to microsoft help . When I did so, I got the response you are not allowed to access this </p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Nigel's</span>
+        <span class="review-meta">Long Beach &middot; 2025-09-13</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      
+      <p class="review-text">My Family Planned a Birthday Celebration for My best friend. She had reserved 2 Cabanas and she had already put in the deposit. This place had the audacity to let us know at the last minute that they couldn't accommodate us. Unfortunately it was our 79 year old Mother that was handling the reservation. The Girls Name was Leah and not only was she r</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Sohnne</span>
+        <span class="review-meta">Mission District &middot; 2025-04-15</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      
+      <p class="review-text">Horrible company with terrible customer support!  I ordered a chair and when I placed the order there was absolutely nowhere on the order information that it would take 6 WEEKS to receive it. When I called to inquire on the delivery date, they said it was coming from overseas and that it would take 6-8 weeks. I asked if I could cancel it because I </p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Mel's Drive-In</span>
+        <span class="review-meta">Mission District &middot; 2025-08-11</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      
+      <p class="review-text">Horrible service. Super rude and not helpful at all. On top of that, the food was awful and they did not make the eggs even close to what we asked. Super runny and gross. Don't waste your time here.</p>
+      
+    </div></div>
+</div>
+<div class="section-divider"></div>
+
+<!-- RECENCY -->
+<div class="section" id="recency">
+  <div class="section-title">Review Recency</div>
+  <div class="section-subtitle">How fresh is the review data?</div>
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--accent)">19.3%</div>
+      <div class="insight-label">from last 6 months<br>(30,905 reviews)</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--accent)">44.0%</div>
+      <div class="insight-label">from last 12 months<br>(70,670 reviews)</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--text2)">56.0%</div>
+      <div class="insight-label">older than 12 months</div>
+    </div>
+  </div>
+  <div class="sub-title">Reviews Over Time (Last 18 Months)</div>
+  <div class="sparkline-full">
+    <svg viewBox="0 0 800 200" class="sparkline-svg">
+      <text x="50.0" y="195" text-anchor="middle" fill="var(--text2)" font-size="11">24-09</text><text x="173.5" y="195" text-anchor="middle" fill="var(--text2)" font-size="11">24-12</text><text x="297.1" y="195" text-anchor="middle" fill="var(--text2)" font-size="11">25-03</text><text x="420.6" y="195" text-anchor="middle" fill="var(--text2)" font-size="11">25-06</text><text x="544.1" y="195" text-anchor="middle" fill="var(--text2)" font-size="11">25-09</text><text x="667.6" y="195" text-anchor="middle" fill="var(--text2)" font-size="11">25-12</text><text x="750.0" y="195" text-anchor="middle" fill="var(--text2)" font-size="11">26-02</text><line x1="50" y1="170.0" x2="750" y2="170.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="174.0" text-anchor="end" fill="var(--text2)" font-size="11">0</text><line x1="50" y1="100.0" x2="750" y2="100.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="104.0" text-anchor="end" fill="var(--text2)" font-size="11">3,438</text><line x1="50" y1="30.0" x2="750" y2="30.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="34.0" text-anchor="end" fill="var(--text2)" font-size="11">6,876</text>
+      <polygon points="50.0,42.8 91.2,41.1 132.4,41.2 173.5,40.3 214.7,36.8 255.9,41.6 297.1,30.0 338.2,40.2 379.4,37.2 420.6,37.3 461.8,34.8 502.9,30.9 544.1,38.2 585.3,42.6 626.5,41.4 667.6,46.6 708.8,74.5 750.0,147.4 750.0,170 50.0,170" fill="var(--accent)" opacity="0.1"/>
+      <polyline points="50.0,42.8 91.2,41.1 132.4,41.2 173.5,40.3 214.7,36.8 255.9,41.6 297.1,30.0 338.2,40.2 379.4,37.2 420.6,37.3 461.8,34.8 502.9,30.9 544.1,38.2 585.3,42.6 626.5,41.4 667.6,46.6 708.8,74.5 750.0,147.4" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="sub-title">By Neighborhood</div>
+  <div class="two-col" style="grid-template-columns:1fr 1fr;gap:1rem">
+    <div class="sparkline-card">
+      <div class="sparkline-label">Long Beach</div>
+      <svg viewBox="0 0 400 120" class="sparkline-svg">
+      <text x="50.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-09</text><text x="102.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-12</text><text x="155.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-03</text><text x="208.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-06</text><text x="261.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-09</text><text x="314.7" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-12</text><text x="350.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">26-02</text><line x1="50" y1="90.0" x2="350" y2="90.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="94.0" text-anchor="end" fill="var(--text2)" font-size="11">0</text><line x1="50" y1="60.0" x2="350" y2="60.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="64.0" text-anchor="end" fill="var(--text2)" font-size="11">898</text><line x1="50" y1="30.0" x2="350" y2="30.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="34.0" text-anchor="end" fill="var(--text2)" font-size="11">1,796</text>
+      <polygon points="50.0,41.4 67.6,40.0 85.3,40.7 102.9,38.4 120.6,40.3 138.2,31.8 155.9,30.0 173.5,39.9 191.2,37.4 208.8,35.9 226.5,35.7 244.1,30.4 261.8,38.0 279.4,43.3 297.1,43.8 314.7,43.7 332.4,42.1 350.0,68.3 350.0,90 50.0,90" fill="var(--accent)" opacity="0.1"/>
+      <polyline points="50.0,41.4 67.6,40.0 85.3,40.7 102.9,38.4 120.6,40.3 138.2,31.8 155.9,30.0 173.5,39.9 191.2,37.4 208.8,35.9 226.5,35.7 244.1,30.4 261.8,38.0 279.4,43.3 297.1,43.8 314.7,43.7 332.4,42.1 350.0,68.3" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    </div><div class="sparkline-card">
+      <div class="sparkline-label">Mission District</div>
+      <svg viewBox="0 0 400 120" class="sparkline-svg">
+      <text x="50.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-09</text><text x="102.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-12</text><text x="155.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-03</text><text x="208.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-06</text><text x="261.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-09</text><text x="314.7" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-12</text><text x="350.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">26-02</text><line x1="50" y1="90.0" x2="350" y2="90.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="94.0" text-anchor="end" fill="var(--text2)" font-size="11">0</text><line x1="50" y1="60.0" x2="350" y2="60.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="64.0" text-anchor="end" fill="var(--text2)" font-size="11">1,739</text><line x1="50" y1="30.0" x2="350" y2="30.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="34.0" text-anchor="end" fill="var(--text2)" font-size="11">3,479</text>
+      <polygon points="50.0,33.6 67.6,33.6 85.3,34.3 102.9,34.4 120.6,30.0 138.2,36.2 155.9,30.6 173.5,33.0 191.2,32.1 208.8,33.1 226.5,30.2 244.1,31.9 261.8,31.2 279.4,32.8 297.1,30.7 314.7,33.5 332.4,57.2 350.0,90.0 350.0,90 50.0,90" fill="var(--accent2)" opacity="0.1"/>
+      <polyline points="50.0,33.6 67.6,33.6 85.3,34.3 102.9,34.4 120.6,30.0 138.2,36.2 155.9,30.6 173.5,33.0 191.2,32.1 208.8,33.1 226.5,30.2 244.1,31.9 261.8,31.2 279.4,32.8 297.1,30.7 314.7,33.5 332.4,57.2 350.0,90.0" fill="none" stroke="var(--accent2)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    </div><div class="sparkline-card">
+      <div class="sparkline-label">SF Marina</div>
+      <svg viewBox="0 0 400 120" class="sparkline-svg">
+      <text x="50.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-09</text><text x="102.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-12</text><text x="155.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-03</text><text x="208.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-06</text><text x="261.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-09</text><text x="314.7" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-12</text><text x="350.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">26-02</text><line x1="50" y1="90.0" x2="350" y2="90.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="94.0" text-anchor="end" fill="var(--text2)" font-size="11">0</text><line x1="50" y1="60.0" x2="350" y2="60.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="64.0" text-anchor="end" fill="var(--text2)" font-size="11">451</text><line x1="50" y1="30.0" x2="350" y2="30.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="34.0" text-anchor="end" fill="var(--text2)" font-size="11">902</text>
+      <polygon points="50.0,41.2 67.6,38.0 85.3,34.4 102.9,37.8 120.6,37.4 138.2,42.2 155.9,32.8 173.5,38.9 191.2,36.9 208.8,40.0 226.5,37.5 244.1,30.0 261.8,42.5 279.4,35.3 297.1,38.5 314.7,41.3 332.4,43.5 350.0,74.6 350.0,90 50.0,90" fill="var(--accent3)" opacity="0.1"/>
+      <polyline points="50.0,41.2 67.6,38.0 85.3,34.4 102.9,37.8 120.6,37.4 138.2,42.2 155.9,32.8 173.5,38.9 191.2,36.9 208.8,40.0 226.5,37.5 244.1,30.0 261.8,42.5 279.4,35.3 297.1,38.5 314.7,41.3 332.4,43.5 350.0,74.6" fill="none" stroke="var(--accent3)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    </div><div class="sparkline-card">
+      <div class="sparkline-label">Astoria</div>
+      <svg viewBox="0 0 400 120" class="sparkline-svg">
+      <text x="50.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-09</text><text x="102.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-12</text><text x="155.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-03</text><text x="208.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-06</text><text x="261.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-09</text><text x="314.7" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-12</text><text x="350.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">26-02</text><line x1="50" y1="90.0" x2="350" y2="90.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="94.0" text-anchor="end" fill="var(--text2)" font-size="11">0</text><line x1="50" y1="60.0" x2="350" y2="60.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="64.0" text-anchor="end" fill="var(--text2)" font-size="11">230</text><line x1="50" y1="30.0" x2="350" y2="30.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="34.0" text-anchor="end" fill="var(--text2)" font-size="11">460</text>
+      <polygon points="50.0,37.2 67.6,36.1 85.3,32.7 102.9,30.0 120.6,34.3 138.2,34.2 155.9,35.6 173.5,36.1 191.2,36.3 208.8,33.7 226.5,32.0 244.1,40.4 261.8,36.5 279.4,45.3 297.1,41.5 314.7,48.0 332.4,48.0 350.0,76.7 350.0,90 50.0,90" fill="var(--warm)" opacity="0.1"/>
+      <polyline points="50.0,37.2 67.6,36.1 85.3,32.7 102.9,30.0 120.6,34.3 138.2,34.2 155.9,35.6 173.5,36.1 191.2,36.3 208.8,33.7 226.5,32.0 244.1,40.4 261.8,36.5 279.4,45.3 297.1,41.5 314.7,48.0 332.4,48.0 350.0,76.7" fill="none" stroke="var(--warm)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    </div><div class="sparkline-card">
+      <div class="sparkline-label">Menlo Park</div>
+      <svg viewBox="0 0 400 120" class="sparkline-svg">
+      <text x="50.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-09</text><text x="102.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">24-12</text><text x="155.9" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-03</text><text x="208.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-06</text><text x="261.8" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-09</text><text x="314.7" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">25-12</text><text x="350.0" y="115" text-anchor="middle" fill="var(--text2)" font-size="11">26-02</text><line x1="50" y1="90.0" x2="350" y2="90.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="94.0" text-anchor="end" fill="var(--text2)" font-size="11">0</text><line x1="50" y1="60.0" x2="350" y2="60.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="64.0" text-anchor="end" fill="var(--text2)" font-size="11">208</text><line x1="50" y1="30.0" x2="350" y2="30.0" stroke="var(--border)" stroke-dasharray="3,3"/><text x="42" y="34.0" text-anchor="end" fill="var(--text2)" font-size="11">417</text>
+      <polygon points="50.0,34.9 67.6,36.9 85.3,39.9 102.9,38.5 120.6,38.3 138.2,47.3 155.9,38.8 173.5,33.9 191.2,34.9 208.8,30.0 226.5,45.0 244.1,32.4 261.8,34.9 279.4,35.9 297.1,39.2 314.7,40.9 332.4,42.2 350.0,71.9 350.0,90 50.0,90" fill="var(--gold)" opacity="0.1"/>
+      <polyline points="50.0,34.9 67.6,36.9 85.3,39.9 102.9,38.5 120.6,38.3 138.2,47.3 155.9,38.8 173.5,33.9 191.2,34.9 208.8,30.0 226.5,45.0 244.1,32.4 261.8,34.9 279.4,35.9 297.1,39.2 314.7,40.9 332.4,42.2 350.0,71.9" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    </div>
+  </div>
+</div>
+<div class="section-divider"></div>
+
+<!-- PRICES -->
+<div class="section" id="prices">
+  <div class="section-title">Price Mentions in Service Reviews</div>
+  <div class="section-subtitle">20,848 service reviews (PLAH + PERF) analyzed</div>
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--warm)">7.6%</div>
+      <div class="insight-label">mention a specific $ amount<br>(1,579 reviews)</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--warm)">31.7%</div>
+      <div class="insight-label">reference price in any way<br>(6,614 reviews)</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num" style="color:var(--text2)">68.3%</div>
+      <div class="insight-label">no price reference at all</div>
+    </div>
+  </div>
+  <div class="sub-title">What Triggers a "Price Mention"</div>
+  <div class="cat-row">
+      <span class="cat-name">price/prices</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:100.0%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">2,619 <span class="cat-pct">(12.6%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">$XX amount</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:58.6%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">1,536 <span class="cat-pct">(7.4%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">charge/charged</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:44.5%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">1,165 <span class="cat-pct">(5.6%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">cost/costs</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:33.2%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">870 <span class="cat-pct">(4.2%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">quote/quotes</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:32.4%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">848 <span class="cat-pct">(4.1%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">pricing</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:25.5%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">667 <span class="cat-pct">(3.2%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">estimate</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:21.6%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">567 <span class="cat-pct">(2.7%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">fee/fees</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:17.8%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">467 <span class="cat-pct">(2.2%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">expensive</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:12.7%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">333 <span class="cat-pct">(1.6%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">cheap</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:11.4%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">299 <span class="cat-pct">(1.4%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">affordable</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:10.2%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">266 <span class="cat-pct">(1.3%)</span></span>
+    </div><div class="cat-row">
+      <span class="cat-name">overpriced</span>
+      <span class="cat-bar"><div class="bar-track"><div class="bar-fill" style="width:2.6%;background:var(--warm)"></div></div></span>
+      <span class="cat-num">69 <span class="cat-pct">(0.3%)</span></span>
+    </div>
+  <div class="sub-title">By Neighborhood</div>
+  <div class="price-zip-grid"><div class="price-zip-card">
+      <div class="pz-label">Long Beach</div>
+      <div class="pz-row"><span class="pz-type">Specific $</span><span class="pz-val">5.4%</span></div>
+      <div class="pz-row"><span class="pz-type">Any price ref</span><span class="pz-val">30.8%</span></div>
+      <div class="pz-total">2,391 service reviews</div>
+    </div><div class="price-zip-card">
+      <div class="pz-label">Mission District</div>
+      <div class="pz-row"><span class="pz-type">Specific $</span><span class="pz-val">8.0%</span></div>
+      <div class="pz-row"><span class="pz-type">Any price ref</span><span class="pz-val">32.8%</span></div>
+      <div class="pz-total">14,797 service reviews</div>
+    </div><div class="price-zip-card">
+      <div class="pz-label">SF Marina</div>
+      <div class="pz-row"><span class="pz-type">Specific $</span><span class="pz-val">6.7%</span></div>
+      <div class="pz-row"><span class="pz-type">Any price ref</span><span class="pz-val">23.2%</span></div>
+      <div class="pz-total">1,517 service reviews</div>
+    </div><div class="price-zip-card">
+      <div class="pz-label">Astoria</div>
+      <div class="pz-row"><span class="pz-type">Specific $</span><span class="pz-val">10.9%</span></div>
+      <div class="pz-row"><span class="pz-type">Any price ref</span><span class="pz-val">38.7%</span></div>
+      <div class="pz-total">843 service reviews</div>
+    </div><div class="price-zip-card">
+      <div class="pz-label">Menlo Park</div>
+      <div class="pz-row"><span class="pz-type">Specific $</span><span class="pz-val">6.0%</span></div>
+      <div class="pz-row"><span class="pz-type">Any price ref</span><span class="pz-val">26.5%</span></div>
+      <div class="pz-total">1,300 service reviews</div>
+    </div></div>
+  <div class="callout"><strong>Only 7.5% cite a specific dollar amount.</strong> Most price mentions are qualitative ("reasonable", "expensive"). Astoria reviewers are most price-conscious (10.9% specific $), SF Marina least (6.7%).</div>
+  <div class="sub-title">Reviews with Specific $ Amounts</div>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Remoov</span>
+        <span class="review-meta">Mission District &middot; 2024-08-16</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      <div class="amounts"><span class="price-tag">$252</span> <span class="price-tag">$465</span> <span class="price-tag">$717.</span></div>
+      <p class="review-text">TLDR; be mentally and financially prepared for items marked as "resale" to be changed to "recycle" on the spot by the team who comes to pick up your items.
+
+The team of men who hauled my items away were great. However, I have to give one star because I felt completely blindsided by Remoov's process. When they give you a quote, they don't make it cr</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Komaaj</span>
+        <span class="review-meta">Mission District &middot; 2025-06-11</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      <div class="amounts"><span class="price-tag">$17.50</span></div>
+      <p class="review-text">I had a very disappointing experience with Komaaj's food today. My friend ordered the Pomegranate Chicken Wrap and other items from them for our meal. To my shock, I ended up nearly choking on a whole chicken bone that was hidden inside the wrap (see photo). Completely unacceptable and dangerous.
+
+On top of that, the wrap itself was bland and poorl</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">American Muscle</span>
+        <span class="review-meta">Mission District &middot; 2024-09-06</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      <div class="amounts"><span class="price-tag">$20</span> <span class="price-tag">$72</span></div>
+      <p class="review-text">Horrible customer service! I placed an order with an agent on the phone and they didn't add the open box item at $20 instead charged me $72 for a new one. I called back in 15 min after i noticed it and called back. It was already too late to change the order?!? Ill be returning the products and shop with a different company that cares about service</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Ditmars Flower Shop</span>
+        <span class="review-meta">Astoria &middot; 2024-12-13</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9734;&#9734;&#9734;</span></div>
+      <div class="amounts"><span class="price-tag">$254.99.</span></div>
+      <p class="review-text">I contacted Ditmars Flower Shop to let them know that I was disappointed with the arrangement, but I received no response. I upgraded the arrangement to "premium" for $254.99.</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">The Salvation Army Thrift Store & Donation Center</span>
+        <span class="review-meta">Mission District &middot; 2025-10-24</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      <div class="amounts"><span class="price-tag">$45</span> <span class="price-tag">$16.99</span> <span class="price-tag">$12.99.</span></div>
+      <p class="review-text">I think there's new management and they're raising the prices on everything. It's starting to feel like GREEDwill prices.. i guess the greed finally got to SALVATION Army. They collect all the nice things and raised the prices for higher end products now. For example if you find a jersey it would be considered a shirt and it used to be 5.99 but NOW</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Cottage</span>
+        <span class="review-meta">Mission District &middot; 2024-06-11</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      <div class="amounts"><span class="price-tag">$50,000.00</span> <span class="price-tag">$50</span></div>
+      <p class="review-text">Our experience with cottage is they are a new business.  Young men with no experience trying to make it work.  Everyone has to start somewhere but they have a lot to learn.  We went through with 2 appointments with them.  1st guys tells us the price and we say ok.  Then he sets us up with a second appointment and the next guy says sorry we messed u</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Valvoline Instant Oil Change</span>
+        <span class="review-meta">Mission District &middot; 2024-07-19</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9734;&#9734;&#9734;&#9734;</span></div>
+      <div class="amounts"><span class="price-tag">$2,000</span></div>
+      <p class="review-text">I took my car in for a routine oil change, and it turned into a costly disaster. The technician cross-threaded the oil drain plug. Now, I need to have a mechanic replace my oil pan, and I'm being quoted over $2,000 for the job. I will never return to this place and strongly advise others to avoid this whole chain. Very disappointing experience to s</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Folsom Smog Test Only</span>
+        <span class="review-meta">Mission District &middot; 2024-03-14</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      <div class="amounts"><span class="price-tag">$49.95</span></div>
+      <p class="review-text">I came in for a smog when I seen the yelp special and I got taken care of right away. Very nice and respectful. Great price at $49.95 for San Francisco.</p>
+      
+    </div></div>
+  <div class="sub-title">Reviews with Qualitative Price References (no $ amount)</div>
+  <div class="review-grid"><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Apollo Roofing Company</span>
+        <span class="review-meta">Mission District &middot; 2025-01-28</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Good roof at a fair price in Santa Rosa.  Project Manager Nicolas was very attentive to the project and responsive to all my questions I had and presented a good face for the company.  Christine handled "all things office" with care, efficiency and sensitivity.</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Vivi Pet Care</span>
+        <span class="review-meta">Astoria &middot; 2025-06-13</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">We have used Vivi Pet Care for grooming and daycare, and our dogs have always had wonderful experiences. Past groomers have struggled to handle our dogs' nervous natures during grooming, but the Vivi team has consistently done a great job. The daycare services are also great! Our dogs love this place so much that anytime we walk by the building, th</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">CelloJoe</span>
+        <span class="review-meta">Mission District &middot; 2024-04-28</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Cello Joe proved to be the perfect DJ/MC for our wedding, and we enthusiastically recommend him. From the beginning, he was responsive and took charge of the planning process to ensure our day unfolded exactly as we envisioned. His creative ideas helped maintain a smooth and engaging atmosphere throughout the evening. Not only did he adeptly adjust</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Menlo-Atherton Storage</span>
+        <span class="review-meta">Menlo Park &middot; 2025-03-15</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">Safe, clean, kind, and fair prices. Menlo Atherton Storage is family owned and operated. You can easily speak with someone on the team for help with questions and they are all wonderful and easy to talk to. I loved having a storage space there and had total peace of mind. When I moved out I found the moisture absorbing pouches that I put in my item</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">Wag Hotels - San Francisco</span>
+        <span class="review-meta">Mission District &middot; 2025-02-05</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span></div>
+      
+      <p class="review-text">I highly Recommend this business. Their Customer Service is Superior My husband and myself could not be happier on the Special Bond they generate with our pet and others Best and Beyond Special Bond care your pet receives Big Shout Out to Deshawn Smith the client Manager at San Francisco Wag Hotel showing his commitment performance and explaining t</p>
+      
+    </div><div class="review-card">
+      <div class="review-header">
+        <span class="review-biz">The UPS Store</span>
+        <span class="review-meta">Long Beach &middot; 2024-12-03</span>
+      </div>
+      <div class="review-rating"><span class="stars">&#9733;&#9733;&#9734;&#9734;&#9734;</span></div>
+      
+      <p class="review-text">My friend and I went in to return an Amazon package without having printed the label. I knew I was going to pay a fee, which wasn't a problem, however when I went into the store. I was greeted by the young man that was working the counter and he was having a little bit of trouble helping me with my package so what I'm assuming was the owner of the </p>
+      
+    </div></div>
+</div>
+
+<div style="text-align:center;padding:3rem 1rem;color:var(--text2);font-size:.72rem;border-top:1px solid var(--border)">
+  Reviews Quality Deep Dive &mdash; 160,453 reviews &middot; 6,322 businesses &middot; 5 neighborhoods
+</div>
+
+<script>
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.sticky-nav a');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const id = entry.target.id;
+      const link = document.querySelector(`.sticky-nav a[href="#${id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+navLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
