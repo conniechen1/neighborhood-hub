@@ -662,6 +662,57 @@ body { background:var(--bg); color:var(--text); font-family:'Inter',-apple-syste
 /* ── HIDDEN CONTENT ── */
 .hidden { display:none !important; }
 .feed-section { max-width:640px; }
+
+/* ── HOT TIPS ── */
+.tips-filter {
+  display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;
+}
+.tips-filter-btn {
+  padding:6px 14px; border-radius:100px;
+  font-size:.75rem; font-weight:600; font-family:inherit;
+  border:1.5px solid var(--border); background:transparent;
+  color:var(--text3); cursor:pointer; transition:all .2s;
+}
+.tips-filter-btn:hover { border-color:var(--warm); color:var(--text); }
+.tips-filter-btn.active { background:var(--warm); border-color:var(--warm); color:#fff; }
+.tips-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px;
+}
+.tip-card {
+  background:var(--surface); border-radius:14px;
+  border:1px solid var(--border); overflow:hidden;
+  transition:transform .2s, border-color .2s;
+}
+.tip-card:hover { transform:translateY(-3px); border-color:var(--warm); }
+.tip-card-header {
+  display:flex; align-items:center; gap:12px;
+  padding:16px 18px 12px;
+  border-bottom:1px solid var(--border);
+}
+.tip-card-emoji { font-size:1.6rem; flex-shrink:0; }
+.tip-card-job { font-weight:800; font-size:.95rem; }
+.tip-card-stats { font-size:.72rem; color:var(--text3); margin-top:2px; }
+.tip-stat-good { color:var(--accent3); font-weight:700; }
+.tip-stat-warn { color:var(--warm); font-weight:700; }
+.tip-card-body { padding:14px 18px; display:flex; flex-direction:column; gap:10px; }
+.tip-item { display:flex; gap:10px; align-items:flex-start; }
+.tip-icon {
+  flex-shrink:0; width:20px; height:20px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.65rem; font-weight:800; margin-top:1px;
+}
+.tip-icon.green { background:rgba(0,212,170,.15); color:var(--accent3); }
+.tip-icon.warn  { background:rgba(255,140,66,.15); color:var(--warm); }
+.tip-icon.red   { background:rgba(255,65,84,.12);  color:var(--red); }
+.tip-item-text { font-size:.82rem; color:var(--text2); line-height:1.5; }
+.tip-item-text strong { color:var(--text); font-weight:700; }
+.tip-real-quote {
+  margin:2px 0 4px; padding:9px 12px;
+  background:var(--surface2); border-radius:8px;
+  border-left:3px solid var(--warm);
+  font-size:.76rem; color:var(--text3); font-style:italic; line-height:1.5;
+}
+
 </style>
 </head>
 <body>
@@ -1043,6 +1094,11 @@ function render(z) {
     html += '</div>';
   }
 
+
+  // HOT TIPS — hired help survival guide
+  html += secHead('Hot Tips: Hiring Local Services', 'What 160,000 reviews taught us about who to trust — and how to not get burned');
+  html += hotTipsHTML();
+
   // 8. PROJECTS GALLERY
   if (h.projects && h.projects.length) {
     html += secHead('Recently Completed Projects', 'Real work, real photos, real results');
@@ -1131,6 +1187,183 @@ function render(z) {
 
   page.innerHTML = html;
   window.scrollTo(0, 0);
+}
+
+
+function hotTipsHTML() {
+  const tips = [
+    {
+      job: 'Auto Repair', emoji: '🔧', cat: 'all',
+      stats: ['14.5% mention specific $', '4.2% flag upselling — highest of any job'],
+      items: [
+        { type: 'warn', text: '<strong>Get it in writing.</strong> Mechanics who quote verbally then charge more is the #1 complaint. Ask for an itemized estimate before authorizing any work.' },
+        { type: 'warn', text: '<strong>Fabricated problems are real.</strong> Multiple reviewers describe shops inventing issues "to rack up labor hours." If something new surfaces mid-repair, ask to see it.' },
+        { type: 'green', text: '<strong>"Honest" is the word.</strong> 5-star reviews for mechanics almost always use the words honest, transparent, or straight shooter. Filter for those.' },
+      ],
+      quote: '"Honest guys and straight shooters — all you can ask for."'
+    },
+    {
+      job: 'Roofers', emoji: '🏠', cat: 'all',
+      stats: ['25% of reviews mention quotes', 'Only 0.3% give actual numbers'],
+      items: [
+        { type: 'warn', text: '<strong>Always get 3 quotes.</strong> One reviewer found they were being overcharged by double after a second opinion. No other job type benefits more from comparison shopping.' },
+        { type: 'warn', text: '<strong>Ghosting after payment is common.</strong> "Never returned to fix it" is a recurring pattern in roofing 1-stars. Use milestone payments, not upfront lump sums.' },
+        { type: 'green', text: '<strong>Winners took multiple bids.</strong> The most detailed 5-star reviews describe comparing 3–4 companies on reputation, price, and communication before deciding.' },
+      ],
+      quote: '"We took bids from 4 companies and decided based on reputation, competitive price, and excellent communication."'
+    },
+    {
+      job: 'Locksmiths', emoji: '🔑', cat: 'all',
+      stats: ['91% 5-star — highest of any job', 'But price escalation drives all 1-stars'],
+      items: [
+        { type: 'warn', text: '<strong>Get the total price before they start.</strong> The classic move: quote one number, charge more once the work is done. Your leverage disappears the moment they begin.' },
+        { type: 'green', text: '<strong>Fast + clear quote = great review.</strong> Every top locksmith review mentions the same thing: they arrived quickly, gave a firm price upfront, and got it done.' },
+        { type: 'green', text: '<strong>Emergency context makes them forgiving.</strong> When someone rescues you at midnight, expectations reset. A locksmith that shows up earns a 5-star almost automatically.' },
+      ],
+      quote: '"Gal responded quickly, listened to what we needed, and gave us a likely price subject to seeing the issue in person."'
+    },
+    {
+      job: 'HVAC', emoji: '❄️', cat: 'all',
+      stats: ['14.5% emergency mentions', '4.8% flag unnecessary upsells'],
+      items: [
+        { type: 'warn', text: '<strong>Watch for the upsell.</strong> HVAC and auto repair are the two jobs most likely to flag "unnecessary" work. Ask: "What happens if we don't fix this right now?"' },
+        { type: 'green', text: '<strong>Best ones volunteer rebate info.</strong> Top 5-star reviews specifically call out companies that proactively mentioned efficiency rebates and didn't push upgrades.' },
+        { type: 'green', text: '<strong>Emergency context = built-in forgiveness.</strong> If they fix a broken heater in January, people give 5 stars almost regardless of price.' },
+      ],
+      quote: '"He took care of permitting, walked us through rebate options, and never pushed anything that seemed unnecessary."'
+    },
+    {
+      job: 'Movers', emoji: '📦', cat: 'all',
+      stats: ['Lowest return intent of any job (3.4%)', 'Communication is the #1 5-star signal'],
+      items: [
+        { type: 'green', text: '<strong>Pre-move communication predicts move quality.</strong> Every 5-star review mentions responsive booking and clear day-of communication. Every 1-star mentions surprises.' },
+        { type: 'warn', text: '<strong>Surprise charges are the main complaint.</strong> Weight overages, extra fees for stairs, fuel surcharges — ask for a complete list of possible add-ons upfront.' },
+        { type: 'warn', text: '<strong>It's a one-time relationship.</strong> Only 3.4% say they'd use the same mover again — lower than any other service. That means every move is a fresh search.' },
+      ],
+      quote: '"From communication when booking all the way through moving morning — zero stress."'
+    },
+    {
+      job: 'Vets', emoji: '🐾', cat: 'all',
+      stats: ['22% of reviews written in emergencies', '35% 1-star — but not about service quality'],
+      items: [
+        { type: 'warn', text: '<strong>Don't read the stars alone.</strong> Low ratings are often written in grief. A vet with 40% 5-stars and detailed outcome descriptions is probably genuinely good.' },
+        { type: 'green', text: '<strong>Transparency about treatment plans is the differentiator.</strong> Best reviews call out vets who clearly explained options, costs, and alternatives before proceeding.' },
+        { type: 'warn', text: '<strong>"Beyond" always wants more.</strong> The #1 complaint at chain vet clinics is relentless upselling of add-ons at every visit. Ask what's actually required vs. optional.' },
+      ],
+      quote: '"He was very transparent and informative about the plan for our cats."'
+    },
+    {
+      job: 'Plumbers', emoji: '🪠', cat: 'all',
+      stats: ['84.6% 5-star', '13% emergency mentions'],
+      items: [
+        { type: 'green', text: '<strong>On-time = 5 stars, almost guaranteed.</strong> Punctuality is mentioned in virtually every top plumber review. A plumber who shows up when they say earns loyalty fast.' },
+        { type: 'warn', text: '<strong>Ask explicitly about warranties.</strong> "No warranty on certain work" and mid-job upcharges are the main 1-star patterns. Confirm warranty terms before they start.' },
+        { type: 'green', text: '<strong>Emergency need lowers the bar — in a good way.</strong> When someone fixes a burst pipe fast, people forgive a lot on price. Outcome is everything.' },
+      ],
+      quote: '"Randy showed up right on time, which I greatly appreciated — and his prices were reasonable."'
+    },
+    {
+      job: 'Storage', emoji: '📦', cat: 'all',
+      stats: ['24% 1-star — comparable to vets', '8.8% warning rate'],
+      items: [
+        { type: 'warn', text: '<strong>Check for rate increase clauses.</strong> Bait-and-switch pricing is the dominant complaint — quoted one rate, charged more after move-in. Read the contract.' },
+        { type: 'warn', text: '<strong>Late fees may not be legally enforceable.</strong> Multiple reviewers flagged this specifically. If you're being charged aggressive late fees, it's worth checking.' },
+        { type: 'warn', text: '<strong>Sleeper problem category.</strong> Storage has worse review metrics than most home services but flies under the radar. Research harder than you think you need to.' },
+      ],
+      quote: '"SCAM ALERT — Avoid Prime Storage at all costs. I was quoted one price and charged another."'
+    },
+    {
+      job: 'Tax & Accounting', emoji: '🧾', cat: 'all',
+      stats: ['Highest realistic pricing rate (11.6%)', 'Highest return intent (14.3%)'],
+      items: [
+        { type: 'green', text: '<strong>Once you find a good one, keep them.</strong> 14.3% return intent — highest of any service job. Accountant loyalty is real and earned.' },
+        { type: 'warn', text: '<strong>Fee disputes drive almost all 1-stars.</strong> Ask upfront: hourly or flat fee? What's included? What triggers extra charges? Get it in writing.' },
+        { type: 'green', text: '<strong>Specific pricing = more trustworthy reviewers.</strong> Tax/accounting has the most detailed price mentions in reviews — people are paying attention and reporting back.' },
+      ],
+      quote: '"After researching 17 companies, I chose them for their diligence in estimating, fair pricing, and fabulous service."'
+    },
+    {
+      job: 'Lawyers', emoji: '⚖️', cat: 'all',
+      stats: ['Avg rating 2.65 — lowest of any job', '57% 1-star, 25% include warnings'],
+      items: [
+        { type: 'warn', text: '<strong>Don't read lawyer reviews like normal reviews.</strong> People only write about lawyers when things went very wrong. A lawyer with 40% 5-stars is likely actually solid.' },
+        { type: 'green', text: '<strong>Look for outcome mentions, not process complaints.</strong> Reviews that say "got me a fair settlement" or "resolved in my favor" are the signal. Process complaints are noise.' },
+        { type: 'warn', text: '<strong>Retention fees upfront are a commitment.</strong> Multiple reviews mention paying $5–8K retainers with unclear terms. Get a written scope of engagement before paying anything.' },
+      ],
+      quote: '"Andrew got me a settlement that was more than fair."'
+    },
+    {
+      job: 'Cleaners', emoji: '🧹', cat: 'all',
+      stats: ['11% mention specific $', '3.5% give realistic project pricing'],
+      items: [
+        { type: 'green', text: '<strong>Recurring relationship is the real signal.</strong> The best cleaning reviews are from people who've used the same cleaner for months or years. Ask if they have regulars.' },
+        { type: 'warn', text: '<strong>Cheaper isn't always cheaper.</strong> "I learned not to go cheaper" comes up repeatedly — people describe returning to a previous cleaner after a bad experience with a bargain option.' },
+        { type: 'green', text: '<strong>Pricing transparency matters.</strong> 5-star cleaners are consistently described as "fair prices" and "reasonable" — meaning no surprises at the end.' },
+      ],
+      quote: '"Best cleaners in Long Beach — fair prices and they take real pride in their work."'
+    },
+    {
+      job: 'Painters', emoji: '🎨', cat: 'all',
+      stats: ['17.8% quote rate — 2nd highest after roofers', 'Low 1-star rate (8.5%)'],
+      items: [
+        { type: 'green', text: '<strong>Relatively trustworthy as a category.</strong> Painters have among the lowest 1-star rates of any service job. The main risk is scope creep, not outright fraud.' },
+        { type: 'warn', text: '<strong>Scope creep is the main issue.</strong> Projects expand. Get the estimate itemized by area and make sure there's a change-order process before work starts.' },
+        { type: 'green', text: '<strong>Daily communication = 5-star outcome.</strong> Best painter reviews describe contractors who communicated every day throughout the project, not just at start and finish.' },
+      ],
+      quote: '"Matthew was a highly detail-oriented communicator and collaborator throughout the entire project."'
+    },
+  ];
+
+  const categories = ['All Jobs', 'Home Services', 'Auto', 'Pets', 'Professional'];
+  const catMap = {
+    'Home Services': ['Roofers','Plumbers','HVAC','Cleaners','Painters','Storage'],
+    'Auto': ['Auto Repair','Locksmiths'],
+    'Pets': ['Vets'],
+    'Professional': ['Tax & Accounting','Lawyers'],
+  };
+
+  let html = '<div class="tips-filter">';
+  categories.forEach((c, i) => {
+    html += `<button class="tips-filter-btn${i===0?' active':''}" onclick="filterTips(this,'${c}')">${c}</button>`;
+  });
+  html += '</div>';
+  html += '<div class="tips-grid" id="tips-grid">';
+
+  tips.forEach(t => {
+    const catLabel = Object.keys(catMap).find(k => catMap[k].includes(t.job)) || 'all';
+    html += `<div class="tip-card" data-cat="${catLabel}">
+      <div class="tip-card-header">
+        <div class="tip-card-emoji">${t.emoji}</div>
+        <div>
+          <div class="tip-card-job">${t.job}</div>
+          <div class="tip-card-stats">${t.stats.map((s,i) => `<span class="${i===0?'tip-stat-good':'tip-stat-warn'}">${s}</span>`).join(' &middot; ')}</div>
+        </div>
+      </div>
+      <div class="tip-card-body">
+        ${t.items.map(item => `
+        <div class="tip-item">
+          <div class="tip-icon ${item.type === 'green' ? 'green' : item.type === 'warn' ? 'warn' : 'red'}">${item.type === 'green' ? '✓' : '!'}</div>
+          <div class="tip-item-text">${item.text}</div>
+        </div>`).join('')}
+        <div class="tip-real-quote">${t.quote}</div>
+      </div>
+    </div>`;
+  });
+
+  html += '</div>';
+  return html;
+}
+
+function filterTips(btn, cat) {
+  document.querySelectorAll('.tips-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#tips-grid .tip-card').forEach(card => {
+    if (cat === 'All Jobs' || card.dataset.cat === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
 }
 
 function secHead(title, sub) {
