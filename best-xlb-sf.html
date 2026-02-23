@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Xiao Long Bao in SF — Neighborhood Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#141420; --surface2:#1c1c2e; --surface3:#242438;
+  --border:#2a2a40; --text:#e8e8f0; --text2:#9898b0; --text3:#6a6a82;
+  --red:#ff4154; --green:#00d4aa; --warm:#ff8c42; --gold:#ffd700;
+  --xlb:#f97316;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.5;}
+
+/* NAV */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 0;}
+.topbar-inner{max-width:860px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;}
+.logo em{color:var(--xlb);font-style:italic;}
+.back{font-size:.75rem;font-weight:600;color:var(--text3);text-decoration:none;transition:color .2s;}
+.back:hover{color:var(--text);}
+
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 64px;}
+
+/* HERO */
+.hero{padding:40px 0 36px;}
+.eyebrow{font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--xlb);margin-bottom:10px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:900;line-height:1.15;margin-bottom:12px;}
+.hero h1 em{color:var(--xlb);font-style:italic;}
+.hero-sub{font-size:.88rem;color:var(--text2);max-width:520px;margin-bottom:28px;}
+
+/* STAT ROW */
+.stats{display:flex;gap:1px;background:var(--border);border-radius:12px;overflow:hidden;margin-bottom:40px;}
+.stat{flex:1;background:var(--surface);padding:13px 14px;text-align:center;}
+.stat-n{font-size:1.4rem;font-weight:900;line-height:1;color:var(--xlb);}
+.stat-l{font-size:.6rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+
+/* RANKED LIST */
+.ranked{display:flex;flex-direction:column;gap:20px;}
+
+.resto-card{background:var(--surface);border-radius:16px;overflow:hidden;border:1px solid var(--border);transition:border-color .2s;}
+.resto-card:hover{border-color:var(--xlb);}
+
+.resto-card.rank-1{border-color:rgba(249,115,22,.3);}
+.resto-card.rank-1 .rank-badge{background:var(--xlb);color:#fff;}
+
+/* PHOTO STRIP */
+.photo-strip{display:grid;gap:2px;height:200px;}
+.photo-strip.photos-1{grid-template-columns:1fr;}
+.photo-strip.photos-2{grid-template-columns:1fr 1fr;}
+.photo-strip.photos-3{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;}
+.photo-strip.photos-4{grid-template-columns:2fr 1fr;grid-template-rows:1fr 1fr;}
+.photo-strip img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-strip img:first-child{grid-row:span 2;}
+
+/* BODY */
+.resto-body{padding:18px 20px;}
+.resto-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.resto-left{}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--surface3);color:var(--text3);font-size:.75rem;font-weight:900;margin-bottom:6px;}
+.resto-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;line-height:1.2;margin-bottom:3px;}
+.resto-meta{font-size:.72rem;color:var(--text3);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.stars{color:var(--gold);}
+.neighborhood-tag{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--surface2);color:var(--text3);}
+.vibe-tag{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(249,115,22,.1);color:var(--xlb);}
+
+.score-box{text-align:right;flex-shrink:0;}
+.score-num{font-size:1.6rem;font-weight:900;line-height:1;color:var(--text);}
+.score-sub{font-size:.6rem;color:var(--text3);font-weight:600;white-space:nowrap;}
+.score-bar{width:60px;height:4px;background:var(--border);border-radius:2px;margin-top:4px;margin-left:auto;}
+.score-fill{height:100%;border-radius:2px;background:var(--xlb);}
+
+.verdict{font-size:.83rem;color:var(--text2);line-height:1.55;margin-bottom:12px;}
+.verdict strong{color:var(--text);}
+
+.xlb-quote{background:var(--surface2);border-radius:8px;border-left:3px solid var(--xlb);padding:10px 14px;font-size:.78rem;color:var(--text3);font-style:italic;line-height:1.5;margin-bottom:12px;}
+
+.tags-row{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{font-size:.62rem;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--text3);}
+.tag.g{background:rgba(0,212,170,.08);border-color:rgba(0,212,170,.2);color:var(--green);}
+.tag.w{background:rgba(255,140,66,.08);border-color:rgba(255,140,66,.2);color:var(--warm);}
+.tag.n{background:var(--surface2);}
+
+/* SECTION HEADING */
+.sec-head{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;padding-bottom:10px;border-bottom:2px solid var(--border);margin:44px 0 20px;}
+
+/* SKIP TABLE */
+.skip-table{width:100%;border-collapse:collapse;}
+.skip-table td,.skip-table th{padding:10px 12px;font-size:.78rem;border-bottom:1px solid var(--border);text-align:left;}
+.skip-table th{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);background:var(--surface);}
+.skip-table td:first-child{font-weight:700;}
+.skip-table td.bad{color:var(--red);}
+.skip-table td.ok{color:var(--warm);}
+.skip-table tr:last-child td{border-bottom:none;}
+
+.footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-size:.72rem;color:var(--text3);}
+.footer a{color:var(--xlb);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">Neighborhood <em>Hub</em></div>
+    <a class="back" href="neighborhood-desktop-v4.html">← Neighborhood guide</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Ranked from review data</div>
+    <h1>Best <em>Xiao Long Bao</em><br>in San Francisco</h1>
+    <div class="hero-sub">Ranked by review volume, rating, and what people actually said about the dumplings — not the décor.</div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-n">8</div><div class="stat-l">Spots ranked</div></div>
+      <div class="stat"><div class="stat-n">1,060+</div><div class="stat-l">Reviews analyzed</div></div>
+      <div class="stat"><div class="stat-n">4.6</div><div class="stat-l">Top spot avg</div></div>
+      <div class="stat"><div class="stat-n">Mission</div><div class="stat-l">Where most are</div></div>
+    </div>
+  </div>
+
+  <div class="ranked">
+
+    <!-- #1 DUMPLING STORY -->
+    <div class="resto-card rank-1">
+      <div class="photo-strip photos-4">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/urLOar6SXDAEKp30imoPOA/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/vzoZdr3UJ0Rpcbj6TZbYhg/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/g5faswbdJDeAcU6fMtlaQw/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/CU5YxixNB1JTNqgUks1kwg/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">1</div>
+            <div class="resto-name">Dumpling Story</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★★</span>
+              <span>176 reviews</span>
+              <span class="neighborhood-tag">Mission District</span>
+              <span class="vibe-tag">Best overall</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">4.6</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:92%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">The clear #1 by volume and consistency. <strong>77% of reviews are 5-star</strong>, which is exceptional for a dumpling spot. Known for a creative take — beef XLB pan fried, numb-and-spicy, lava custard — but the classic pork XLB holds up too. Cocktails round it out for a full evening.</div>
+        <div class="xlb-quote">"The xiao long bao was so yummy — very juicy. The lava custard pan fried dumplings were unique and hit the spot for dessert too."</div>
+        <div class="xlb-quote">"I recommend the beef xiao long bao (pan fried), the price point is around $16. They have cocktails as well!"</div>
+        <div class="tags-row">
+          <span class="tag g">77% 5-star</span>
+          <span class="tag g">Creative variations</span>
+          <span class="tag g">Pan-fried XLB</span>
+          <span class="tag n">~$16/order</span>
+          <span class="tag n">Cocktails</span>
+          <span class="tag w">Spicy option = very spicy</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- #2 BAO -->
+    <div class="resto-card">
+      <div class="photo-strip photos-4">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/WMa8m9ZXvVU_VVpEDjlc9g/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/cYfheviYlUpXeSySD5Gl6w/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/hVYbBC8T_QBu5O7QQd-ohA/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/diR71cNZHMTm2jiEHl9xDw/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">2</div>
+            <div class="resto-name">Bao</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★½</span>
+              <span>117 reviews</span>
+              <span class="neighborhood-tag">Mission District</span>
+              <span class="vibe-tag">Best classic</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">4.4</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:88%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">The most traditional XLB option in the data. Reviewers specifically call out the broth and the wrapper — <strong>"broth was delicious and wrapper was tasty and not sticky"</strong> — which are the two things that actually matter. Strong dim sum selection alongside the XLB if you want to make it a spread.</div>
+        <div class="xlb-quote">"Shanghai Xiao Long Bao: Broth was delicious and bao wrapper was tasty and not sticky!"</div>
+        <div class="tags-row">
+          <span class="tag g">56% 5-star</span>
+          <span class="tag g">Classic preparation</span>
+          <span class="tag g">Full dim sum menu</span>
+          <span class="tag n">30-min wait on weekends</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- #3 BLUE WHALE -->
+    <div class="resto-card">
+      <div class="photo-strip photos-4">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/dV-Vay9bII1CQScYCUguJQ/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/9kj5O5ja5-t7XPmv58iGhg/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/KUsy_gaeyC4d8KxDIwp06Q/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/jOqF4TqAEL2HLfnvdQ-MhA/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">3</div>
+            <div class="resto-name">Blue Whale Restaurant &amp; Lounge</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★½</span>
+              <span>165 reviews</span>
+              <span class="neighborhood-tag">SF Marina</span>
+              <span class="vibe-tag">Most elevated</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">4.3</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:86%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">Not a dumpling-first spot, but their <strong>truffled XLB is genuinely notable</strong> — reviewers single it out as one of the standout dishes. Beautiful interior, cocktails, and a more upscale feel than the Mission spots. The XLB is a highlight of a larger menu, not the whole reason you go.</div>
+        <div class="xlb-quote">"We also enjoyed the more unique dishes that make this place stand out, such as the squid ink orbs and truffled xiao long bao."</div>
+        <div class="xlb-quote">"Pork and Truffle Xiao Long Bao — one of the standout dishes of the night."</div>
+        <div class="tags-row">
+          <span class="tag g">64% 5-star</span>
+          <span class="tag g">Truffle XLB</span>
+          <span class="tag g">Beautiful space</span>
+          <span class="tag n">SF Marina</span>
+          <span class="tag n">Higher price point</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- #4 HK LOUNGE -->
+    <div class="resto-card">
+      <div class="photo-strip photos-4">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/LzQP3ItaXtRIDMHu8LhVoA/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/qmYDUjr8yE0fN--6zIXaow/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/_No13VHwt85DhGqQ_GtfTw/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/D_RfjnTCAeuyOcdcJJVOtw/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">4</div>
+            <div class="resto-name">HK Lounge Bistro</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★</span>
+              <span>174 reviews</span>
+              <span class="neighborhood-tag">Mission District</span>
+              <span class="vibe-tag">Best dim sum spread</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">4.2</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:84%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">If you want XLB as part of a full dim sum experience, this is your spot. Reviewers consistently praise the XLB specifically: <strong>"juicy, strong skin, no metal tin"</strong> (a mark of XLB made in-house) and "rich in soup, thin skin." Best for groups who want variety alongside the dumplings.</div>
+        <div class="xlb-quote">"The XLB was juicy and the skin was so strong — you know it will be a good dumpling when there is no metal tin."</div>
+        <div class="xlb-quote">"The xiaolongbao is rich in soup, the skin is thin and the filling is fresh."</div>
+        <div class="tags-row">
+          <span class="tag g">62% 5-star</span>
+          <span class="tag g">Made in-house</span>
+          <span class="tag g">Full dim sum</span>
+          <span class="tag n">Small space</span>
+          <span class="tag n">Reservation recommended</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- #5 DUMPLING UNION -->
+    <div class="resto-card">
+      <div class="photo-strip photos-4">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/-5WTJVApPcuoDUcEIgNq_w/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/GctNKNR6NGde335KTZic4g/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/eYTQLrx4Hoxe_MbnaDHCQA/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/dTYbf5QETn3nPo43Vtzavg/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">5</div>
+            <div class="resto-name">Dumpling Union</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★</span>
+              <span>103 reviews</span>
+              <span class="neighborhood-tag">SF Marina</span>
+              <span class="vibe-tag">Best value</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">4.3</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:86%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">The best value play — <strong>8 dumplings for $11</strong> was specifically called out as worth it. Spicy XLB is the crowd favorite. Fast service, clean space, Marina location makes it convenient if you're not headed to the Mission. Less variety than the Mission spots but high quality-to-price ratio.</div>
+        <div class="xlb-quote">"8 dumplings for $11 — super worth it for the quality. The spicy XLB ($11) was also delicious."</div>
+        <div class="xlb-quote">"Steamed Soup Xiao Long Bao XLB — my favorite dish of the night. It was all SOOO GOOD."</div>
+        <div class="tags-row">
+          <span class="tag g">55% 5-star</span>
+          <span class="tag g">Best value ~$11</span>
+          <span class="tag g">Fast service</span>
+          <span class="tag n">SF Marina</span>
+          <span class="tag n">Spicy XLB standout</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- #6 UNITED DUMPLINGS -->
+    <div class="resto-card">
+      <div class="photo-strip photos-4">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/hAPEgWMyYDP7pqDb4C4QlQ/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/wGx9_pG__rXURiykJTONPw/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/UON7RCH7g2deEYz4R3aq8Q/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/gr8VR3zQ_ka6VlBUg3nyXQ/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">6</div>
+            <div class="resto-name">United Dumplings</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★</span>
+              <span>211 reviews</span>
+              <span class="neighborhood-tag">SF Marina</span>
+              <span class="vibe-tag">Most reviewed</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">3.8</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:76%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">The most-reviewed spot in the data but more polarizing — 49% 5-star and 13% 1-star means strong opinions both ways. When it's good, the XLB is described as <strong>"the plumpest and tastiest in the city."</strong> Consistency issues are the recurring complaint. Worth trying — go on a weeknight.</div>
+        <div class="xlb-quote">"Of note, the xiao long bao are the plumpest and tastiest I have enjoyed in the city."</div>
+        <div class="xlb-quote">"Pork Soup XLB, Korean BBQ beef dumpling, Sichuan wonton in red oil — all very good."</div>
+        <div class="tags-row">
+          <span class="tag g">Plump XLB when on</span>
+          <span class="tag g">Most reviews</span>
+          <span class="tag w">49% 5-star / 13% 1-star</span>
+          <span class="tag w">Inconsistent</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- #7 DUMPLING TIME -->
+    <div class="resto-card">
+      <div class="photo-strip photos-4">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/ktn-_9PVTwo-VSnXzPNFFg/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/LL5IfeET0795m4iEyzWIpQ/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/W3WFBt_5P8Xt1jvdiIdmqg/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/ACCm4EDgee1Oh13PtKm-gA/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">7</div>
+            <div class="resto-name">Dumpling Time</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★</span>
+              <span>194 reviews</span>
+              <span class="neighborhood-tag">Mission District</span>
+              <span class="vibe-tag">Cult favorite</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">3.8</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:76%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">Has a loyal cult following — <strong>"hands down the best dumpling spot I've ever been to"</strong> — but the data tells a more complicated story: 41% 5-star, 11% 1-star, nearly 200 reviews. The XLB combo and kimchi soup dumpling get consistent praise. Service inconsistency is the main complaint. Try the variety XLB platter.</div>
+        <div class="xlb-quote">"Variety XLB (5/5): I recommend this if you want to try a variety of the XLB."</div>
+        <div class="xlb-quote">"The new soup dumpling menu is to die for, especially the kimchi one."</div>
+        <div class="tags-row">
+          <span class="tag g">Kimchi XLB standout</span>
+          <span class="tag g">Variety XLB platter</span>
+          <span class="tag w">41% 5-star / 11% 1-star</span>
+          <span class="tag w">Service inconsistency</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- #8 WHA DA PHO -->
+    <div class="resto-card">
+      <div class="photo-strip photos-3">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/zLTPE3pm_nQQLoQVKAkcxQ/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/jULb1y9WozIB1EZofUrwjg/l.jpg" loading="lazy" onerror="this.style.display='none'">
+        <img src="https://yelp-images.s3.amazonaws.com/bphoto/kJ2ExV0ldi-7SaXDr5vEBw/l.jpg" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="resto-body">
+        <div class="resto-top">
+          <div class="resto-left">
+            <div class="rank-badge">8</div>
+            <div class="resto-name">Wha Da Pho</div>
+            <div class="resto-meta">
+              <span class="stars">★★★★</span>
+              <span>69 reviews</span>
+              <span class="neighborhood-tag">Mission District</span>
+              <span class="vibe-tag">Hidden gem</span>
+            </div>
+          </div>
+          <div class="score-box">
+            <div class="score-num">4.2</div>
+            <div class="score-sub">avg rating</div>
+            <div class="score-bar"><div class="score-fill" style="width:84%"></div></div>
+          </div>
+        </div>
+        <div class="verdict">A Vietnamese spot that does XLB as part of a broader menu — and pulls it off. Lower profile than the others, but reviewers who ordered it came back. <strong>Solid if you want XLB alongside pho or banh mi</strong> without committing to a full dumpling dinner. Underrated and underreviewed.</div>
+        <div class="xlb-quote">"We got the spicy beef vermicelli, pan fried buns, and XLB and everything was delicious!"</div>
+        <div class="tags-row">
+          <span class="tag g">61% 5-star</span>
+          <span class="tag g">Underrated</span>
+          <span class="tag n">XLB + Vietnamese menu</span>
+          <span class="tag n">Fewer reviews</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ranked -->
+
+  <!-- QUICK COMPARISON -->
+  <div class="sec-head">Quick comparison</div>
+  <table class="skip-table">
+    <thead>
+      <tr><th>Spot</th><th>Best for</th><th>XLB style</th><th>Rating</th><th>Reviews</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Dumpling Story</td><td>Overall best</td><td>Creative, pan-fried options</td><td class="ok">4.6 ★</td><td>176</td></tr>
+      <tr><td>Bao</td><td>Classic XLB</td><td>Traditional pork, thin skin</td><td class="ok">4.4 ★</td><td>117</td></tr>
+      <tr><td>Blue Whale</td><td>Special occasion</td><td>Truffled, elevated</td><td class="ok">4.3 ★</td><td>165</td></tr>
+      <tr><td>HK Lounge Bistro</td><td>Dim sum spread</td><td>In-house, juicy, strong skin</td><td class="ok">4.2 ★</td><td>174</td></tr>
+      <tr><td>Dumpling Union</td><td>Best value</td><td>Spicy XLB, $11/8 dumplings</td><td class="ok">4.3 ★</td><td>103</td></tr>
+      <tr><td>United Dumplings</td><td>Marina location</td><td>Plump when consistent</td><td style="color:var(--warm)">3.8 ★</td><td>211</td></tr>
+      <tr><td>Dumpling Time</td><td>Kimchi XLB fans</td><td>Variety platter, kimchi</td><td style="color:var(--warm)">3.8 ★</td><td>194</td></tr>
+      <tr><td>Wha Da Pho</td><td>Hidden gem</td><td>XLB + Vietnamese menu</td><td class="ok">4.2 ★</td><td>69</td></tr>
+    </tbody>
+  </table>
+
+</div><!-- /wrap -->
+
+<div class="footer">
+  Based on 1,060+ reviews across SF neighborhoods &middot; Data through Feb 2026 &middot;
+  <a href="neighborhood-desktop-v4.html">Neighborhood Hub</a>
+</div>
+
+</body>
+</html>
