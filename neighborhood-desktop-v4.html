@@ -757,6 +757,7 @@ const trendSvg = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.
   pills.innerHTML = ZIP_ORDER.map(z =>
     `<button class="pill" data-zip="${z}" onclick="selectZip('${z}')">${esc(ZIP_LABELS[z])}</button>`
   ).join('');
+  selectZip(ZIP_ORDER[0]);
 })();
 
 function selectZip(z) {
