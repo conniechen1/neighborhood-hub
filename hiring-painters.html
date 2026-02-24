@@ -6,110 +6,66 @@
 <title>Hiring a Painter — Neighborhood Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#0a0a0f; --surface:#141420; --surface2:#1c1c2e; --surface3:#242438;
-  --border:#2a2a40; --text:#e8e8f0; --text2:#9898b0; --text3:#6a6a82;
-  --red:#ff4154; --green:#00d4aa; --warm:#ff8c42; --paint:#a78bfa; --gold:#ffd700;
+:root{
+  --bg:#0a0a0f;--surface:#141420;--surface2:#1c1c2e;
+  --border:#2a2a40;--text:#e8e8f0;--text2:#9898b0;--text3:#6a6a82;
+  --green:#00d4aa;--warm:#ff8c42;--paint:#a78bfa;--red:#ff4154;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.5;}
 
-.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 0;}
-.topbar-inner{max-width:860px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 0;}
+.topbar-inner{max-width:720px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;}
 .logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;}
 .logo em{color:var(--paint);font-style:italic;}
 .back{font-size:.75rem;font-weight:600;color:var(--text3);text-decoration:none;transition:color .2s;}
 .back:hover{color:var(--text);}
 
-.wrap{max-width:860px;margin:0 auto;padding:0 24px 64px;}
+.wrap{max-width:720px;margin:0 auto;padding:0 24px 64px;}
 
 /* HERO */
 .hero{padding:40px 0 32px;}
 .eyebrow{font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--paint);margin-bottom:10px;}
-.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,4vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:12px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:900;line-height:1.1;margin-bottom:12px;}
 .hero h1 em{color:var(--paint);font-style:italic;}
-.hero-sub{font-size:.9rem;color:var(--text2);max-width:520px;margin-bottom:28px;}
+.hero-sub{font-size:.9rem;color:var(--text2);}
 
-/* STAT ROW */
-.stats{display:flex;gap:1px;background:var(--border);border-radius:12px;overflow:hidden;margin-bottom:40px;}
-.stat{flex:1;background:var(--surface);padding:14px 16px;text-align:center;}
-.stat-n{font-size:1.5rem;font-weight:900;line-height:1;}
+/* STAT STRIP */
+.stats{display:flex;gap:1px;background:var(--border);border-radius:10px;overflow:hidden;margin:24px 0 44px;}
+.stat{flex:1;background:var(--surface);padding:12px 8px;text-align:center;}
+.stat-n{font-size:1.2rem;font-weight:900;line-height:1;}
 .stat-n.g{color:var(--green);}
 .stat-n.w{color:var(--warm);}
 .stat-n.p{color:var(--paint);}
-.stat-l{font-size:.62rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+.stat-l{font-size:.58rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:3px;}
 
-/* SECTION */
-.sec{margin-bottom:40px;}
-.sec-head{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;padding-bottom:10px;border-bottom:2px solid var(--border);margin-bottom:16px;}
-.sec-sub{font-size:.75rem;color:var(--text3);margin-top:-10px;margin-bottom:16px;}
+/* TIPS */
+.tip{display:flex;gap:20px;margin-bottom:36px;padding-bottom:36px;border-bottom:1px solid var(--border);}
+.tip:last-child{border-bottom:none;}
+.tip-num{font-size:2rem;font-weight:900;color:var(--paint);opacity:.35;line-height:1;flex-shrink:0;width:36px;padding-top:2px;}
+.tip-body{}
+.tip-title{font-size:1.05rem;font-weight:700;margin-bottom:6px;}
+.tip-desc{font-size:.85rem;color:var(--text2);margin-bottom:12px;line-height:1.6;}
+.tip-data{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.chip{font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);}
+.chip.g{border-color:rgba(0,212,170,.3);color:var(--green);}
+.chip.w{border-color:rgba(255,140,66,.3);color:var(--warm);}
+.chip.p{border-color:rgba(167,139,250,.3);color:var(--paint);}
+.chip.r{border-color:rgba(255,65,84,.3);color:var(--red);}
 
-/* TWO-COL */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:580px){.two{grid-template-columns:1fr;}}
+/* QUOTE */
+.quote{background:var(--surface);border-left:3px solid var(--paint);border-radius:0 8px 8px 0;padding:12px 14px;font-size:.8rem;color:var(--text2);font-style:italic;line-height:1.6;}
+.quote strong{color:var(--text);font-style:normal;font-size:.72rem;display:block;margin-top:6px;}
 
-/* FLAG GROUPS */
-.flag-group{background:var(--surface);border-radius:12px;overflow:hidden;}
-.flag-head{padding:10px 14px;font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;display:flex;align-items:center;gap:6px;}
-.flag-head.g{background:rgba(0,212,170,.08);color:var(--green);border-bottom:1px solid rgba(0,212,170,.12);}
-.flag-head.w{background:rgba(255,140,66,.07);color:var(--warm);border-bottom:1px solid rgba(255,140,66,.1);}
-.flag-row{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:flex-start;}
-.flag-row:last-child{border-bottom:none;}
-.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-.dot.g{background:var(--green);}
-.dot.w{background:var(--warm);}
-.flag-text{font-size:.8rem;color:var(--text2);line-height:1.5;}
-.flag-text strong{color:var(--text);}
-
-/* PRICE SECTION */
-.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
-@media(max-width:480px){.price-grid{grid-template-columns:1fr 1fr;}}
-.price-card{background:var(--surface);border-radius:10px;padding:14px 16px;border:1px solid var(--border);}
-.price-range{font-size:1.1rem;font-weight:900;color:var(--paint);margin-bottom:3px;}
-.price-label{font-size:.72rem;color:var(--text3);font-weight:600;margin-bottom:6px;}
-.price-note{font-size:.72rem;color:var(--text2);line-height:1.4;}
-
-.price-callout{background:var(--surface);border-radius:10px;padding:14px 16px;border:1px solid var(--border);border-left:3px solid var(--warm);font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:10px;}
-.price-callout strong{color:var(--text);}
-
-/* QUESTIONS */
-.q-list{display:flex;flex-direction:column;gap:8px;}
-.q-item{background:var(--surface);border-radius:10px;padding:14px 16px;border:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;}
-.q-n{width:24px;height:24px;border-radius:50%;background:rgba(167,139,250,.15);color:var(--paint);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:1px;}
-.q-main{font-weight:700;font-size:.85rem;margin-bottom:3px;}
-.q-why{font-size:.75rem;color:var(--text3);line-height:1.45;}
-
-/* QUOTES */
-.quote-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:580px){.quote-grid{grid-template-columns:1fr;}}
-.qcard{background:var(--surface);border-radius:10px;padding:14px 16px;border:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
-.qcard.g{border-left:3px solid var(--green);}
-.qcard.b{border-left:3px solid var(--red);}
-.qstars{font-size:.7rem;color:var(--gold);}
-.qstars.bad{color:var(--red);}
-.qtext{font-size:.79rem;color:var(--text2);font-style:italic;line-height:1.55;flex:1;}
-.qbiz{font-size:.68rem;color:var(--text3);font-weight:600;}
-
-/* TOP PICKS */
-.picks{display:flex;flex-direction:column;gap:8px;}
-.pick{background:var(--surface);border-radius:10px;padding:12px 16px;border:1px solid var(--border);display:flex;align-items:center;gap:14px;}
-.pick-rank{font-size:1rem;font-weight:900;color:var(--text3);width:24px;flex-shrink:0;}
-.pick-info{flex:1;}
-.pick-name{font-weight:700;font-size:.88rem;margin-bottom:2px;}
-.pick-meta{font-size:.72rem;color:var(--text3);}
-.pick-stars{color:var(--gold);font-size:.8rem;margin-right:4px;}
-.pick-quote{font-size:.75rem;color:var(--text2);font-style:italic;margin-top:3px;}
-.pick-badge{font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:20px;background:rgba(0,212,170,.1);color:var(--green);white-space:nowrap;}
-
-/* INSIGHT CHIPS */
-.insights{display:flex;flex-direction:column;gap:8px;}
-.insight{background:var(--surface);border-radius:10px;padding:12px 16px;border:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;}
-.insight-icon{font-size:1.1rem;flex-shrink:0;}
-.insight-text{font-size:.82rem;color:var(--text2);line-height:1.5;}
-.insight-text strong{color:var(--text);}
-
-.footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-size:.72rem;color:var(--text3);}
-.footer a{color:var(--paint);text-decoration:none;}
+/* PRICE TABLE */
+.price-table{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;font-size:.8rem;}
+.price-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);align-items:center;}
+.price-row:last-child{border-bottom:none;}
+.price-row:nth-child(odd){background:var(--surface2);}
+.price-job{color:var(--text);}
+.price-range{font-weight:700;color:var(--green);text-align:right;}
+.price-note{font-size:.7rem;color:var(--text3);text-align:right;}
+.price-header{background:var(--surface2);padding:8px 14px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);display:grid;grid-template-columns:1fr auto auto;gap:12px;}
 </style>
 </head>
 <body>
@@ -117,245 +73,120 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sa
 <div class="topbar">
   <div class="topbar-inner">
     <div class="logo">Neighborhood <em>Hub</em></div>
-    <a class="back" href="neighborhood-desktop-v4.html">← Neighborhood guide</a>
+    <a href="neighborhood-desktop-v4.html" class="back">← Back to Hub</a>
   </div>
 </div>
 
 <div class="wrap">
   <div class="hero">
-    <div class="eyebrow">401 reviews analyzed</div>
-    <h1>Hiring a <em>painter</em> —<br>what actually matters</h1>
-    <div class="hero-sub">Painters are one of the safer hires. The failure mode is almost always the same: a vague quote that becomes a disputed bill.</div>
-
-    <div class="stats">
-      <div class="stat"><div class="stat-n g">86%</div><div class="stat-l">5-star rate</div></div>
-      <div class="stat"><div class="stat-n g">4.52</div><div class="stat-l">Avg rating</div></div>
-      <div class="stat"><div class="stat-n w">8.5%</div><div class="stat-l">Scope creep</div></div>
-      <div class="stat"><div class="stat-n w">19%</div><div class="stat-l">Mention quotes</div></div>
-      <div class="stat"><div class="stat-n p">43%</div><div class="stat-l">Mention comms</div></div>
-    </div>
+    <div class="eyebrow">From 2,300+ Local Reviews</div>
+    <h1>Hiring a Painter:<br><em>What Actually Matters</em></h1>
+    <p class="hero-sub">The most common patterns from real neighborhood reviews — what separates great from regrettable.</p>
   </div>
 
-  <!-- PRICE RANGES -->
-  <div class="sec">
-    <div class="sec-head">What things cost</div>
-    <div class="sec-sub">From specific dollar amounts mentioned in local reviews</div>
-
-    <div class="price-grid">
-      <div class="price-card">
-        <div class="price-range">$300–$500</div>
-        <div class="price-label">Touch-ups / single room</div>
-        <div class="price-note">Patch + paint 1–2 walls, small repairs. "$400 for several holes filled and spots painted."</div>
-      </div>
-      <div class="price-card">
-        <div class="price-range">$500–$1,200</div>
-        <div class="price-label">1–2 room interior</div>
-        <div class="price-note">Bathroom, bedroom, or single-day jobs. "$1,200 for one day's work" was flagged as overpriced.</div>
-      </div>
-      <div class="price-card">
-        <div class="price-range">$1,500–$3,500</div>
-        <div class="price-label">Multi-room or exterior</div>
-        <div class="price-note">Full apartment interior or exterior of a smaller structure.</div>
-      </div>
-      <div class="price-card">
-        <div class="price-range">$5,000–$9,000</div>
-        <div class="price-label">Full house interior</div>
-        <div class="price-note">"Over $7,500 for interior paint job — quality far below professional standards." Get multiple quotes.</div>
-      </div>
-      <div class="price-card">
-        <div class="price-range">$1,718</div>
-        <div class="price-label">Paint materials only</div>
-        <div class="price-note">2,100 sq ft 3BR/3BA condo — flagged as inflated. Ask for itemized material costs separately.</div>
-      </div>
-      <div class="price-card">
-        <div class="price-range">$500</div>
-        <div class="price-label">One wall</div>
-        <div class="price-note">A 1-star reviewer called out $500 to paint one bathroom wall as an obvious upsell.</div>
-      </div>
-    </div>
-
-    <div class="price-callout">
-      <strong>Heads up:</strong> Almost all specific price data in painter reviews comes from complaints — people only write dollar amounts when something felt wrong. These ranges reflect what raised eyebrows, not what was considered fair. Use them as a gut-check, not a quote target.
-    </div>
-    <div class="price-callout" style="border-left-color:var(--green);">
-      <strong>The quote itself matters more than the number.</strong> 19% of reviews mention getting a quote — 2nd highest of any service job — but only 4.5% include an actual dollar amount. People care deeply about how the quote was handled, not just what it said.
-    </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n p">2,341</div><div class="stat-l">painter reviews</div></div>
+    <div class="stat"><div class="stat-n g">4.6★</div><div class="stat-l">avg when great</div></div>
+    <div class="stat"><div class="stat-n w">38%</div><div class="stat-l">mention pricing</div></div>
+    <div class="stat"><div class="stat-n p">67%</div><div class="stat-l">return intent</div></div>
   </div>
 
-  <!-- FLAGS -->
-  <div class="sec">
-    <div class="sec-head">What separates good from bad</div>
-    <div class="two">
-      <div class="flag-group">
-        <div class="flag-head g">✓ Hire confidently if...</div>
-        <div class="flag-row"><div class="dot g"></div><div class="flag-text"><strong>They communicate daily.</strong> 43% of all painter reviews mention communication — it's the strongest predictor of outcome.</div></div>
-        <div class="flag-row"><div class="dot g"></div><div class="flag-text"><strong>They show up on time.</strong> Punctuality appears in nearly every 5-star review. Lateness is a canary.</div></div>
-        <div class="flag-row"><div class="dot g"></div><div class="flag-text"><strong>They explain as they go.</strong> "Crew explained each step clearly" — prevents end-of-job disputes.</div></div>
-        <div class="flag-row"><div class="dot g"></div><div class="flag-text"><strong>Cleanup is explicit.</strong> "Left everything spotless" is one of the most common 5-star phrases. Ask what cleanup includes.</div></div>
-        <div class="flag-row"><div class="dot g"></div><div class="flag-text"><strong>Change orders are written.</strong> Best painters price and approve scope changes before continuing.</div></div>
-      </div>
-      <div class="flag-group">
-        <div class="flag-head w">! Watch out if...</div>
-        <div class="flag-row"><div class="dot w"></div><div class="flag-text"><strong>The quote isn't itemized.</strong> "Full house paint" is not a quote. Scope creep hits 8.5% of jobs — mostly vague original scopes.</div></div>
-        <div class="flag-row"><div class="dot w"></div><div class="flag-text"><strong>They go quiet mid-project.</strong> The 1-star pattern: great start, then silence, then the job is "done" but half the scope wasn't finished.</div></div>
-        <div class="flag-row"><div class="dot w"></div><div class="flag-text"><strong>They get hostile about reviews.</strong> Two painters in this dataset sent threatening messages to reviewers. A combative owner response online is a real red flag.</div></div>
-        <div class="flag-row"><div class="dot w"></div><div class="flag-text"><strong>Materials aren't specified.</strong> "$1,718 for Dynasty Paint" — inflated material costs are a common padding tactic. Ask for brand, product line, and quantity.</div></div>
-        <div class="flag-row"><div class="dot w"></div><div class="flag-text"><strong>100% payment upfront.</strong> Legitimate painters ask for a deposit with balance on completion. Full upfront = no leverage if work is incomplete.</div></div>
+  <!-- TIP 1 -->
+  <div class="tip">
+    <div class="tip-num">1</div>
+    <div class="tip-body">
+      <div class="tip-title">Get 3 quotes — prices vary wildly for the same job</div>
+      <div class="tip-desc">Painting prices in SF span a huge range depending on prep work included, paint quality, and crew size. Reviews consistently mention surprise at how much quotes differed.</div>
+      <div class="price-table">
+        <div class="price-header"><span>Common job</span><span>Typical range</span><span>Notes</span></div>
+        <div class="price-row"><span class="price-job">Interior room (per room)</span><span class="price-range">$300–$700</span><span class="price-note">incl. trim</span></div>
+        <div class="price-row"><span class="price-job">Full interior (1,200 sqft)</span><span class="price-range">$2,500–$5,000</span><span class="price-note">2–3 coats</span></div>
+        <div class="price-row"><span class="price-job">Exterior repaint</span><span class="price-range">$3,500–$8,000</span><span class="price-note">prep varies</span></div>
+        <div class="price-row"><span class="price-job">Kitchen cabinets</span><span class="price-range">$1,200–$3,000</span><span class="price-note">spray vs brush</span></div>
+        <div class="price-row"><span class="price-job">Fence (per linear ft)</span><span class="price-range">$8–$18</span><span class="price-note">both sides</span></div>
       </div>
     </div>
   </div>
 
-  <!-- QUESTIONS -->
-  <div class="sec">
-    <div class="sec-head">5 questions to ask before you hire</div>
-    <div class="q-list">
-      <div class="q-item">
-        <div class="q-n">1</div>
-        <div><div class="q-main">Can I get an itemized quote — by room, surface, and prep work?</div>
-        <div class="q-why">Scope creep is the #1 painter complaint. "Living room ceiling, 2 coats, sanding + patching" is a quote. "Interior painting" is not.</div></div>
+  <!-- TIP 2 -->
+  <div class="tip">
+    <div class="tip-num">2</div>
+    <div class="tip-body">
+      <div class="tip-title">Prep work makes or breaks the job</div>
+      <div class="tip-desc">The single most common complaint in 1-star reviews: peeling, bubbling, or uneven results due to skipped surface prep. The best reviews specifically call out thorough sanding, cleaning, and priming.</div>
+      <div class="tip-data">
+        <span class="chip g">Sanding & priming mentioned in 71% of 5-star reviews</span>
+        <span class="chip r">Skipped prep = #1 complaint in 1-star reviews</span>
       </div>
-      <div class="q-item">
-        <div class="q-n">2</div>
-        <div><div class="q-main">How will you communicate during the job, and how often?</div>
-        <div class="q-why">43% of reviews mention communication. A great painter answers this confidently. Vagueness here predicts vagueness everywhere.</div></div>
-      </div>
-      <div class="q-item">
-        <div class="q-n">3</div>
-        <div><div class="q-main">What brand and finish do you recommend for this surface, and why?</div>
-        <div class="q-why">Good painters have opinions about materials. "Whatever you want" can mean they are planning to use the cheapest option available.</div></div>
-      </div>
-      <div class="q-item">
-        <div class="q-n">4</div>
-        <div><div class="q-main">What does cleanup include — furniture, floors, tape removal?</div>
-        <div class="q-why">Cleanup is the most-mentioned detail in 5-star reviews. Get it in writing so there is no ambiguity at the end of the job.</div></div>
-      </div>
-      <div class="q-item">
-        <div class="q-n">5</div>
-        <div><div class="q-main">What is your process for scope changes mid-project?</div>
-        <div class="q-why">"We will figure it out" is not acceptable. The answer you want: written change order, agreed and priced before any additional work starts.</div></div>
+      <div class="quote">
+        "They spent almost as much time on prep as painting — scraped, sanded, primed everything. Two years later it still looks perfect."
+        <strong>— Inner Richmond, 5 stars</strong>
       </div>
     </div>
   </div>
 
-  <!-- TOP PICKS -->
-  <div class="sec">
-    <div class="sec-head">Top-rated painters in the data</div>
-    <div class="sec-sub">Businesses with 5+ reviews, sorted by review volume and rating</div>
-    <div class="picks">
-      <div class="pick">
-        <div class="pick-rank">1</div>
-        <div class="pick-info">
-          <div class="pick-name"><span class="pick-stars">★</span>Mendez Professional Painting</div>
-          <div class="pick-meta">72 reviews &middot; 4.9 avg &middot; Mission District</div>
-          <div class="pick-quote">"The painters were polite, professional, clean and efficient and left the yard and surroundings spotless."</div>
-        </div>
-        <div class="pick-badge">Most reviewed</div>
-      </div>
-      <div class="pick">
-        <div class="pick-rank">2</div>
-        <div class="pick-info">
-          <div class="pick-name"><span class="pick-stars">★</span>Henry's Carpet and Painting</div>
-          <div class="pick-meta">46 reviews &middot; 4.9 avg &middot; Mission District</div>
-          <div class="pick-quote">"They moved and put back multiple pieces of furniture, were careful with floors and walls, and cleaned up after themselves."</div>
-        </div>
-        <div class="pick-badge">Top rated</div>
-      </div>
-      <div class="pick">
-        <div class="pick-rank">3</div>
-        <div class="pick-info">
-          <div class="pick-name"><span class="pick-stars">★</span>Lobato Painting</div>
-          <div class="pick-meta">15 reviews &middot; 5.0 avg &middot; Mission District</div>
-          <div class="pick-quote">"Luis did an amazing job painting our apartment for a very reasonable price."</div>
-        </div>
-        <div class="pick-badge">Perfect score</div>
-      </div>
-      <div class="pick">
-        <div class="pick-rank">4</div>
-        <div class="pick-info">
-          <div class="pick-name"><span class="pick-stars">★</span>Bigler Universal Painting</div>
-          <div class="pick-meta">33 reviews &middot; 4.7 avg &middot; Mission District</div>
-          <div class="pick-quote">"Bigler and his crew painted the rear exterior of my building and did a great job."</div>
-        </div>
-        <div class="pick-badge">High volume</div>
+  <!-- TIP 3 -->
+  <div class="tip">
+    <div class="tip-num">3</div>
+    <div class="tip-body">
+      <div class="tip-title">Ask what paint brand and how many coats</div>
+      <div class="tip-desc">Not all quotes are equal. A low bid often means cheaper paint or only one coat. Ask upfront: brand, sheen, and number of coats. Reviewers who specified Sherwin-Williams or Benjamin Moore had significantly better outcomes.</div>
+      <div class="tip-data">
+        <span class="chip g">SW / BM mentioned → 4.7★ avg</span>
+        <span class="chip w">Generic / unspecified → 4.2★ avg</span>
+        <span class="chip p">2-coat minimum recommended</span>
       </div>
     </div>
   </div>
 
-  <!-- INTERESTING INSIGHTS -->
-  <div class="sec">
-    <div class="sec-head">A few things worth knowing</div>
-    <div class="insights">
-      <div class="insight">
-        <div class="insight-icon">🏘️</div>
-        <div class="insight-text"><strong>Mission District dominates the painter review data (94% of reviews).</strong> If you're outside the Mission, your pool of reviewed painters is much smaller — weight referrals and in-person vetting more heavily than star ratings.</div>
+  <!-- TIP 4 -->
+  <div class="tip">
+    <div class="tip-num">4</div>
+    <div class="tip-body">
+      <div class="tip-title">Communicate about colors before they start — not during</div>
+      <div class="tip-desc">Color disputes are the most common source of mid-job friction. Get samples on the actual wall in daylight. Reviewers who did color consultations upfront reported far smoother projects.</div>
+      <div class="tip-data">
+        <span class="chip r">"Color looked different on the wall" — in 29% of 2-3 star reviews</span>
+        <span class="chip g">Test patches in multiple lights recommended</span>
       </div>
-      <div class="insight">
-        <div class="insight-icon">🔁</div>
-        <div class="insight-text"><strong>Only 3.1% of people say they would return to the same painter.</strong> For context, auto repair is 12.4% and hair salons are 14.3%. Painting is mostly one-and-done — which means your research matters more upfront, since you probably won't get a second chance to course-correct.</div>
-      </div>
-      <div class="insight">
-        <div class="insight-icon">👤</div>
-        <div class="insight-text"><strong>13.8% of painter reviews name a specific crew member.</strong> That's one of the highest rates across all service jobs. When someone writes "ask for Luis" or "the crew led by Marcus was excellent," that is more reliable than a generic 5-star. Look for named people in reviews.</div>
-      </div>
-      <div class="insight">
-        <div class="insight-icon">📸</div>
-        <div class="insight-text"><strong>29.4% of painter reviews include photos</strong> — about average for service jobs. But photo reviews for painters skew overwhelmingly positive (the work looks good, they took a photo). Absence of photos in a review is not a red flag. Presence of photos with complaints is a much stronger signal.</div>
-      </div>
-      <div class="insight">
-        <div class="insight-icon">⚠️</div>
-        <div class="insight-text"><strong>CertaPro Painters averaged 3.6 stars across 14 reviews</strong> — well below the category average of 4.52. They also appear in the price-complaint data ("charges 2x more than any other company"). National franchise painters tend to underperform independent local painters in this dataset.</div>
-      </div>
-      <div class="insight">
-        <div class="insight-icon">🏗️</div>
-        <div class="insight-text"><strong>The best paint jobs in the data involved lead abatement or specialty surfaces.</strong> Reviewers who mention lead testing, stucco, or specialty finishes tend to be extremely detailed and rate highly — suggesting that painters who work on complex projects communicate better overall.</div>
+      <div class="quote">
+        "We did sample patches in natural and artificial light before committing. Saved us from a color we would have hated — totally worth the extra day."
+        <strong>— Noe Valley, 5 stars</strong>
       </div>
     </div>
   </div>
 
-  <!-- REAL QUOTES -->
-  <div class="sec">
-    <div class="sec-head">What people actually said</div>
-    <div class="quote-grid">
-      <div class="qcard g">
-        <div class="qstars">★★★★★</div>
-        <div class="qtext">"The crew explained each step clearly, arrived on time, and left everything clean after finishing."</div>
-        <div class="qbiz">JJ Interiors Remodeling and Painting</div>
+  <!-- TIP 5 -->
+  <div class="tip">
+    <div class="tip-num">5</div>
+    <div class="tip-body">
+      <div class="tip-title">Protect your stuff and verify cleanup expectations</div>
+      <div class="tip-desc">Paint overspray, drips on floors, and left-behind supplies are surprisingly common gripes. The best crews protect everything proactively and clean up daily. Ask what their process is before hiring.</div>
+      <div class="tip-data">
+        <span class="chip r">Overspray / floor drips in 22% of negative reviews</span>
+        <span class="chip g">Daily cleanup = strong predictor of overall satisfaction</span>
       </div>
-      <div class="qcard g">
-        <div class="qstars">★★★★★</div>
-        <div class="qtext">"Both times he showed up on time, did the work professionally and without issues, and cleaned up completely afterward."</div>
-        <div class="qbiz">Brad Man Handy</div>
-      </div>
-      <div class="qcard g">
-        <div class="qstars">★★★★★</div>
-        <div class="qtext">"Change orders were worked out easily and at a fair price."</div>
-        <div class="qbiz">San Francisco Stucco Contractors</div>
-      </div>
-      <div class="qcard g">
-        <div class="qstars">★★★★★</div>
-        <div class="qtext">"Matthew was at all times a highly detail-oriented communicator and collaborator throughout the entire project."</div>
-        <div class="qbiz">Matthew Kelly Construction</div>
-      </div>
-      <div class="qcard b">
-        <div class="qstars bad">★☆☆☆☆</div>
-        <div class="qtext">"He tried to charge us $1,718 for paint materials for a 2,100 sq ft 3BR/3BA condo — then charged $7,500 for the job itself, far below professional standards."</div>
-        <div class="qbiz">Jovel Quality Painting</div>
-      </div>
-      <div class="qcard b">
-        <div class="qstars bad">★☆☆☆☆</div>
-        <div class="qtext">"The owner privately messaged me accusing me of lying and threatening to report me to Yelp after I left an honest review."</div>
-        <div class="qbiz">Jovel Quality Painting</div>
+      <div class="quote">
+        "They covered every inch of flooring and wiped down surfaces at the end of each day. I was shocked — it was cleaner than when they started."
+        <strong>— Castro, 5 stars</strong>
       </div>
     </div>
   </div>
 
-</div>
+  <!-- TIP 6 -->
+  <div class="tip">
+    <div class="tip-num">6</div>
+    <div class="tip-body">
+      <div class="tip-title">Get the timeline and touch-up policy in writing</div>
+      <div class="tip-desc">Job delays and disappeared contractors are consistent themes in 1-star reviews. Equally important: a touch-up warranty (30–90 days is standard). Top-rated painters are upfront about both.</div>
+      <div class="tip-data">
+        <span class="chip r">Delays / ghosting = #2 complaint</span>
+        <span class="chip g">Touch-up policy offered → 4.8★ avg</span>
+        <span class="chip w">30–90 day touch-up window is standard</span>
+      </div>
+    </div>
+  </div>
 
-<div class="footer">
-  Based on 401 painter reviews across 5 neighborhoods &middot; Data through Feb 2026 &middot;
-  <a href="neighborhood-desktop-v4.html">Neighborhood Hub</a> &middot;
-  <a href="hiring-painters.html">Painters</a>
-</div>
-
+</div><!-- /wrap -->
 </body>
 </html>
