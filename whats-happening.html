@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's Happening — Neighborhood Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#141420;--surface2:#1c1c2e;--surface3:#242438;
+  --border:#2a2a40;--text:#e8e8f0;--text2:#9898b0;--text3:#6a6a82;
+  --green:#00d4aa;--warm:#ff8c42;--paint:#a78bfa;--red:#ff4154;
+  --gold:#ffd700;--blue:#38bdf8;--pink:#f472b6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.5;}
+
+/* NAV */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(10,10,15,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 0;}
+.topbar-inner{max-width:1000px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;}
+.logo em{color:var(--paint);font-style:italic;}
+.back{font-size:.75rem;font-weight:600;color:var(--text3);text-decoration:none;}
+.back:hover{color:var(--text);}
+
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px 80px;}
+
+/* HERO */
+.hero{padding:36px 0 24px;}
+.eyebrow{font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--warm);margin-bottom:8px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;line-height:1.1;margin-bottom:8px;}
+.hero h1 em{color:var(--paint);font-style:italic;}
+.hero-sub{font-size:.85rem;color:var(--text2);}
+
+/* TAB BAR */
+.tab-bar{display:flex;gap:2px;background:var(--surface2);border-radius:12px;padding:4px;margin:24px 0 32px;border:1px solid var(--border);}
+.tab{flex:1;text-align:center;padding:10px 8px;border-radius:9px;cursor:pointer;font-size:.8rem;font-weight:700;color:var(--text3);transition:all .2s;white-space:nowrap;}
+.tab:hover{color:var(--text);}
+.tab.active{background:var(--surface3);color:var(--text);border:1px solid var(--border);}
+.tab .tab-icon{display:block;font-size:1.1rem;margin-bottom:2px;}
+@media(max-width:540px){.tab{font-size:.65rem;padding:8px 4px;}.tab .tab-icon{font-size:.9rem;}}
+
+/* SECTION TOGGLE */
+.section{display:none;}
+.section.active{display:block;}
+
+/* SECTION HEADER */
+.sec-head{margin-bottom:24px;}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;margin-bottom:4px;}
+.sec-desc{font-size:.82rem;color:var(--text2);}
+
+/* ==============================
+   EVENTS SECTION
+   ============================== */
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+
+.event-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s;display:flex;flex-direction:column;}
+.event-card:hover{border-color:rgba(255,140,66,.3);}
+
+.event-img{width:100%;height:160px;object-fit:cover;display:block;}
+.event-img-placeholder{height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
+
+.event-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:10px;}
+.event-type-row{display:flex;align-items:center;gap:8px;}
+.event-type{font-size:.62rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:3px 9px;border-radius:4px;}
+.event-type.class{background:rgba(56,189,248,.15);color:var(--blue);}
+.event-type.venue{background:rgba(255,140,66,.15);color:var(--warm);}
+.event-type.experience{background:rgba(167,139,250,.15);color:var(--paint);}
+.event-type.fitness{background:rgba(0,212,170,.15);color:var(--green);}
+
+.event-when{font-size:.68rem;font-weight:600;color:var(--text3);}
+.event-name{font-size:.95rem;font-weight:700;line-height:1.3;}
+.event-loc{font-size:.75rem;color:var(--text3);}
+.event-desc{font-size:.78rem;color:var(--text2);line-height:1.6;flex:1;}
+.event-quote{font-size:.75rem;color:var(--text2);font-style:italic;border-left:2px solid var(--warm);padding-left:10px;line-height:1.5;}
+.event-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:6px;}
+.event-rating{font-size:.75rem;color:var(--gold);font-weight:700;}
+.event-cta{font-size:.7rem;font-weight:700;padding:5px 12px;border-radius:20px;background:var(--warm);color:#000;cursor:pointer;border:none;}
+
+/* ==============================
+   THIRD PLACES SECTION
+   ============================== */
+.places-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.places-grid{grid-template-columns:1fr;}}
+
+.place-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s;}
+.place-card:hover{border-color:rgba(167,139,250,.3);}
+.place-card.featured{grid-column:span 2;}
+@media(max-width:600px){.place-card.featured{grid-column:span 1;}}
+
+.place-img-wrap{position:relative;overflow:hidden;}
+.place-img-wrap img{width:100%;display:block;object-fit:cover;}
+.place-card.featured .place-img-wrap img{height:240px;}
+.place-card:not(.featured) .place-img-wrap img{height:150px;}
+
+.vibe-tags{position:absolute;bottom:10px;left:10px;display:flex;gap:6px;flex-wrap:wrap;}
+.vibe{font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(10,10,15,.8);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.1);color:var(--text);}
+
+.place-body{padding:16px;}
+.place-type{font-size:.62rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--paint);margin-bottom:6px;}
+.place-name{font-size:1rem;font-weight:700;margin-bottom:4px;}
+.place-tagline{font-size:.78rem;color:var(--text2);margin-bottom:10px;font-style:italic;}
+.place-desc{font-size:.78rem;color:var(--text2);line-height:1.6;margin-bottom:10px;}
+.place-meta{display:flex;gap:8px;flex-wrap:wrap;}
+.place-chip{font-size:.65rem;font-weight:600;padding:3px 9px;border-radius:10px;background:var(--surface3);border:1px solid var(--border);color:var(--text3);}
+
+/* ==============================
+   TIME-LIMITED SECTION
+   ============================== */
+.limited-list{display:flex;flex-direction:column;gap:14px;}
+
+.limited-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:grid;grid-template-columns:200px 1fr;transition:border-color .2s;}
+.limited-card:hover{border-color:rgba(255,215,0,.25);}
+@media(max-width:600px){.limited-card{grid-template-columns:1fr;}}
+
+.limited-photos{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+.limited-photos img{width:100%;height:100%;object-fit:cover;display:block;min-height:70px;}
+
+.limited-body{padding:18px 20px;display:flex;flex-direction:column;gap:10px;}
+.urgency-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.urgency-badge{font-size:.62rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:rgba(255,215,0,.15);color:var(--gold);border:1px solid rgba(255,215,0,.3);}
+.urgency-badge.seasonal{background:rgba(0,212,170,.15);color:var(--green);border-color:rgba(0,212,170,.3);}
+.urgency-badge.limited{background:rgba(255,65,84,.15);color:var(--red);border-color:rgba(255,65,84,.3);}
+
+.limited-biz{font-size:.68rem;font-weight:600;color:var(--text3);}
+.limited-title{font-size:.95rem;font-weight:700;line-height:1.3;}
+.limited-desc{font-size:.78rem;color:var(--text2);line-height:1.6;}
+.limited-quote{font-size:.75rem;color:var(--text2);font-style:italic;border-left:2px solid var(--gold);padding-left:10px;line-height:1.5;}
+.limited-footer{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:auto;}
+.limited-chip{font-size:.65rem;font-weight:600;padding:3px 9px;border-radius:10px;background:var(--surface3);border:1px solid var(--border);color:var(--text3);}
+
+/* ==============================
+   CHEF SPOTLIGHT SECTION
+   ============================== */
+.chefs-grid{display:flex;flex-direction:column;gap:24px;}
+
+.chef-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;transition:border-color .2s;}
+.chef-card:hover{border-color:rgba(244,114,182,.3);}
+@media(max-width:640px){.chef-card{grid-template-columns:1fr;}}
+
+.chef-photo-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;min-height:280px;}
+.chef-photo-grid img{width:100%;height:100%;object-fit:cover;display:block;}
+.chef-photo-grid .solo{grid-column:span 2;grid-row:span 2;}
+
+.chef-body{padding:24px 28px;display:flex;flex-direction:column;gap:14px;}
+.chef-role-row{display:flex;align-items:center;gap:10px;}
+.chef-role{font-size:.62rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(244,114,182,.15);color:var(--pink);}
+.chef-awards{font-size:.7rem;color:var(--gold);}
+.chef-name{font-size:1.3rem;font-weight:900;line-height:1.1;}
+.chef-name span{color:var(--pink);}
+.chef-at{font-size:.8rem;color:var(--text3);}
+.chef-bio{font-size:.8rem;color:var(--text2);line-height:1.65;}
+.chef-quote{font-size:.8rem;color:var(--text2);font-style:italic;border-left:3px solid var(--pink);padding-left:12px;line-height:1.6;}
+.chef-quote strong{color:var(--text);font-style:normal;display:block;font-size:.7rem;margin-top:6px;}
+.chef-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;}
+.chef-chip{font-size:.65rem;font-weight:600;padding:3px 9px;border-radius:10px;background:var(--surface3);border:1px solid var(--border);color:var(--text3);}
+
+/* SIGNATURE DISH */
+.sig-dish{background:var(--surface2);border-radius:8px;padding:10px 14px;border:1px solid var(--border);}
+.sig-label{font-size:.58rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--pink);margin-bottom:4px;}
+.sig-name{font-size:.85rem;font-weight:700;}
+.sig-desc{font-size:.75rem;color:var(--text2);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">Neighborhood <em>Hub</em></div>
+    <a href="neighborhood-desktop-v4.html" class="back">← Back to Hub</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Live from the Neighborhood</div>
+    <h1>What's <em>Happening</em></h1>
+    <p class="hero-sub">Events, third places, limited-time finds, and the people behind your favorite spots — surfaced from real reviews.</p>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('events', this)">
+      <span class="tab-icon">📅</span>Events
+    </div>
+    <div class="tab" onclick="switchTab('third', this)">
+      <span class="tab-icon">☕</span>Third Places
+    </div>
+    <div class="tab" onclick="switchTab('limited', this)">
+      <span class="tab-icon">⏳</span>Time-Limited
+    </div>
+    <div class="tab" onclick="switchTab('chef', this)">
+      <span class="tab-icon">👨‍🍳</span>Spotlights
+    </div>
+  </div>
+
+  <!-- ====== EVENTS ====== -->
+  <div id="events" class="section active">
+    <div class="sec-head">
+      <div class="sec-title">Local Events &amp; Classes</div>
+      <div class="sec-desc">Happening now and worth booking ahead — pulled from neighborhood reviews.</div>
+    </div>
+    <div class="events-grid">
+
+      <div class="event-card">
+        <img class="event-img" src="https://yelp-images.s3.amazonaws.com/bphoto/2hpgVJrccCF1BsLwQiYkIA/l.jpg" alt="Body Temp Yoga">
+        <div class="event-body">
+          <div class="event-type-row">
+            <span class="event-type fitness">Fitness Class</span>
+            <span class="event-when">Ongoing · Marina District</span>
+          </div>
+          <div class="event-name">Hot 60 — Ashtanga at 108°F</div>
+          <div class="event-loc">Body Temp Yoga · 94123</div>
+          <div class="event-quote">"You feel like you are going to die. But you will feel so alive afterwards. Rick is a great teacher."</div>
+          <div class="event-footer">
+            <span class="event-rating">★★★★★</span>
+            <button class="event-cta">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img class="event-img" src="https://yelp-images.s3.amazonaws.com/bphoto/97hdyqDW5Ur7fIe1JEQSOw/l.jpg" alt="The Ditty venue">
+        <div class="event-body">
+          <div class="event-type-row">
+            <span class="event-type venue">Event Venue</span>
+            <span class="event-when">Weekends · Astoria</span>
+          </div>
+          <div class="event-name">Private Events + Covered Backyard</div>
+          <div class="event-loc">The Ditty · 11105</div>
+          <div class="event-quote">"Chill vibes with edison bulb lighting and games. They have a covered backyard area — there was already an event going on when I arrived."</div>
+          <div class="event-footer">
+            <span class="event-rating">★★★★★</span>
+            <button class="event-cta">Book Venue</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img class="event-img" src="https://yelp-images.s3.amazonaws.com/bphoto/r0Tfa7z8A_yiK-sCd8j70Q/l.jpg" alt="Bus Daddy">
+        <div class="event-body">
+          <div class="event-type-row">
+            <span class="event-type experience">Experience</span>
+            <span class="event-when">Book ahead · Marina</span>
+          </div>
+          <div class="event-name">Party Bus for Group Retreats</div>
+          <div class="event-loc">Bus Daddy · 94123</div>
+          <div class="event-quote">"Welcomed with personalized signs and fun merch. From the outside you would never guess the bus was such a party on the inside."</div>
+          <div class="event-footer">
+            <span class="event-rating">★★★★★</span>
+            <button class="event-cta">Book Now</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <div class="event-img-placeholder">🎵</div>
+        <div class="event-body">
+          <div class="event-type-row">
+            <span class="event-type venue">Live Music</span>
+            <span class="event-when">Weekly · Astoria</span>
+          </div>
+          <div class="event-name">Live Music + Patio Nights</div>
+          <div class="event-loc">Louie's on 2nd · 11105</div>
+          <div class="event-desc">Regular live music in a neighborhood bar with an outdoor patio. Great for a casual after-work stop or weekend night out with locals.</div>
+          <div class="event-footer">
+            <span class="event-rating">★★★★★</span>
+            <button class="event-cta">Check Schedule</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img class="event-img" src="https://yelp-images.s3.amazonaws.com/bphoto/IJ_LdmfF2cd0iF6N_Dti_w/l.jpg" alt="The Ditty food">
+        <div class="event-body">
+          <div class="event-type-row">
+            <span class="event-type class">Workshop</span>
+            <span class="event-when">Rotating · San Francisco</span>
+          </div>
+          <div class="event-name">Pop-Up Dinners &amp; Neighborhood Meetups</div>
+          <div class="event-loc">Multiple venues · 94110 / 94123</div>
+          <div class="event-desc">Neighborhood pop-ups and community dinners mentioned frequently across Mission and Marina reviews — watch local boards and Yelp events for upcoming dates.</div>
+          <div class="event-footer">
+            <span class="event-rating">Community</span>
+            <button class="event-cta">Follow</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="event-card">
+        <img class="event-img" src="https://yelp-images.s3.amazonaws.com/bphoto/i68lvZBoM7B8JLfShTtmeA/l.jpg" alt="Yoga class">
+        <div class="event-body">
+          <div class="event-type-row">
+            <span class="event-type class">Drop-In Class</span>
+            <span class="event-when">Daily · Marina District</span>
+          </div>
+          <div class="event-name">Hot Yoga — All Levels Welcome</div>
+          <div class="event-loc">Body Temp Yoga · 94123</div>
+          <div class="event-quote">"60 minutes, ashtanga style, most poses done twice. 40% of students left early — it is that hot. Still totally worth it."</div>
+          <div class="event-footer">
+            <span class="event-rating">★★★★★</span>
+            <button class="event-cta">Drop In</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====== THIRD PLACES ====== -->
+  <div id="third" class="section">
+    <div class="sec-head">
+      <div class="sec-title">Third Places</div>
+      <div class="sec-desc">Not home, not work — the spots where neighborhoods actually happen.</div>
+    </div>
+    <div class="places-grid">
+
+      <div class="place-card featured">
+        <div class="place-img-wrap">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/ZTz91heWYOnckToXLnByIw/l.jpg" alt="Human Aeon sauna">
+          <div class="vibe-tags">
+            <span class="vibe">Cold Plunge</span>
+            <span class="vibe">Sauna</span>
+            <span class="vibe">Red Light Therapy</span>
+            <span class="vibe">Solo-friendly</span>
+          </div>
+        </div>
+        <div class="place-body">
+          <div class="place-type">Wellness Sanctuary</div>
+          <div class="place-name">Human Aeon</div>
+          <div class="place-tagline">"A hidden oasis that feels like you have been transported far, far away."</div>
+          <div class="place-desc">A rare kind of place: the moment you walk in, your shoulders drop. Cold plunge, sauna, red light therapy, and something harder to name — a deliberate slowness that most neighborhoods lack. Regulars describe it as part of their weekly ritual, not a treat. Long Beach's best-kept wellness secret.</div>
+          <div class="place-meta">
+            <span class="place-chip">📍 Long Beach 90803</span>
+            <span class="place-chip">★★★★★</span>
+            <span class="place-chip">Sauna + Cold Plunge</span>
+            <span class="place-chip">No reservation needed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="place-card">
+        <div class="place-img-wrap">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/SvdTI0_gwLLHuSen9FB3Gw/l.jpg" alt="Kolaj coffee shop">
+          <div class="vibe-tags">
+            <span class="vibe">Remote work</span>
+            <span class="vibe">Quiet</span>
+            <span class="vibe">New spot</span>
+          </div>
+        </div>
+        <div class="place-body">
+          <div class="place-type">Coffee Shop</div>
+          <div class="place-name">Kolaj</div>
+          <div class="place-tagline">Mediterranean café, Astoria Marina neighborhood.</div>
+          <div class="place-desc">Opened recently and still under the radar — described as the perfect place to get work done without being crowded out. Owners are present and warm. Caught early, before it fills up.</div>
+          <div class="place-meta">
+            <span class="place-chip">📍 Astoria 11105</span>
+            <span class="place-chip">★★★★★</span>
+            <span class="place-chip">Laptop-friendly</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="place-card">
+        <div class="place-img-wrap">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/XESaxDNFxuIif-eHHnKPmA/l.jpg" alt="Cha For Tea">
+          <div class="vibe-tags">
+            <span class="vibe">Boba</span>
+            <span class="vibe">Student hangout</span>
+            <span class="vibe">Casual</span>
+          </div>
+        </div>
+        <div class="place-body">
+          <div class="place-type">Tea Shop</div>
+          <div class="place-name">Cha For Tea</div>
+          <div class="place-tagline">The neighborhood boba spot that's been there for years.</div>
+          <div class="place-desc">A staple near CSULB with a loyal following. The kind of place where people go not just for the drinks but because it is familiar, easy, and full of regulars. Fruity drinks, popcorn chicken, consistent quality.</div>
+          <div class="place-meta">
+            <span class="place-chip">📍 Long Beach 90803</span>
+            <span class="place-chip">★★★★★</span>
+            <span class="place-chip">Afternoon hangout</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="place-card">
+        <div class="place-img-wrap">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/e6W3hEE7LJcu2kDHKVuoww/l.jpg" alt="Kolaj interior">
+          <div class="vibe-tags">
+            <span class="vibe">Mediterranean</span>
+            <span class="vibe">Cozy</span>
+            <span class="vibe">Owner-run</span>
+          </div>
+        </div>
+        <div class="place-body">
+          <div class="place-type">Neighborhood Cafe</div>
+          <div class="place-name">Kolaj — Interior</div>
+          <div class="place-tagline">Go before the word fully gets out.</div>
+          <div class="place-desc">Reviewers who caught Kolaj in its first weeks describe the privilege of having the space to themselves. Clean, relaxing, great for focus. The owners are said to be "tremendously kind."</div>
+          <div class="place-meta">
+            <span class="place-chip">📍 Astoria 11105</span>
+            <span class="place-chip">New Opening</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="place-card">
+        <div class="place-img-wrap">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/187botYjISiCGuCvs6NX0A/l.jpg" alt="Marina Indian Cuisine">
+          <div class="vibe-tags">
+            <span class="vibe">Walk-in friendly</span>
+            <span class="vibe">Regulars welcome</span>
+          </div>
+        </div>
+        <div class="place-body">
+          <div class="place-type">Neighborhood Restaurant</div>
+          <div class="place-name">Marina Indian Cuisine</div>
+          <div class="place-tagline">The corner spot that becomes a habit.</div>
+          <div class="place-desc">Small, walk-in friendly, and consistently excellent. The kind of neighborhood restaurant that becomes part of your routine — not a destination, but a default. Tikka masala that converts snobs.</div>
+          <div class="place-meta">
+            <span class="place-chip">📍 Marina 94123</span>
+            <span class="place-chip">★★★★★</span>
+            <span class="place-chip">No reservation needed</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====== TIME-LIMITED ====== -->
+  <div id="limited" class="section">
+    <div class="sec-head">
+      <div class="sec-title">Time-Limited &amp; Seasonal</div>
+      <div class="sec-desc">Things that won't be around forever — act while the reviews are fresh.</div>
+    </div>
+    <div class="limited-list">
+
+      <div class="limited-card">
+        <div class="limited-photos">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/pKft3gYo4joyh6EX8BnODQ/l.jpg" alt="Wildseed">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/wUHUlP4wMrt9GkbxkN5PTw/l.jpg" alt="Wildseed cocktail">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/Kdte_Zoy0s_e6IULnp1vYg/l.jpg" alt="Wildseed interior">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/vzbgOOtK4P4QzpPhscUwyg/l.jpg" alt="Wildseed dish">
+        </div>
+        <div class="limited-body">
+          <div class="urgency-row">
+            <span class="urgency-badge seasonal">Seasonal Menu</span>
+            <span class="limited-biz">Wildseed · Union St · 94123</span>
+          </div>
+          <div class="limited-title">Seasonal Aperol Cocktail — Bar &amp; Patio Only</div>
+          <div class="limited-desc">Plant-based fine dining on Union Street. The seasonal cocktail menu rotates, with the current Aperol twist only available in the bar and patio area — not on the main dining floor. Happy hour pricing applies in those seats only.</div>
+          <div class="limited-quote">"I had to try their seasonal Aperol twist offering — only available at the bar. The interior alone is worth the visit: raised bottle-service-style tables that add to the whole aesthetic."</div>
+          <div class="limited-footer">
+            <span class="limited-chip">📍 Marina District</span>
+            <span class="limited-chip">★★★★★</span>
+            <span class="limited-chip">Bar seating · no reservation</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="limited-card">
+        <div class="limited-photos">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/G4zWK4ZDO7psaosEL3clAA/l.jpg" alt="Tipsy Scoop">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/6ek-0I3N5zQRuRy50Whriw/l.jpg" alt="Tipsy Scoop scoop">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/nDjqAveLSbAohJZVYBaGqA/l.jpg" alt="Tipsy Scoop flavor">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/XLXvBoYZ6RyQgXO_H3rqgQ/l.jpg" alt="Tipsy Scoop shop">
+        </div>
+        <div class="limited-body">
+          <div class="urgency-row">
+            <span class="urgency-badge limited">Limited Flavor</span>
+            <span class="limited-biz">Tipsy Scoop · Astoria · 11105</span>
+          </div>
+          <div class="limited-title">Boozy Baklava — Seasonal Greek Community Flavor</div>
+          <div class="limited-desc">Alcohol-infused ice cream shop new to the Astoria neighborhood. Created a special "Boozy Baklava" flavor to celebrate the local Greek community — described as a seasonal collab that may not last the year.</div>
+          <div class="limited-quote">"I love how they created a new flavor to celebrate the Greek community! Their new and exciting flavor is just incredible. Community came out on opening day and the energy was everything."</div>
+          <div class="limited-footer">
+            <span class="limited-chip">📍 Astoria, Queens</span>
+            <span class="limited-chip">★★★★★</span>
+            <span class="limited-chip">New opening</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="limited-card">
+        <div class="limited-photos">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/fI3WQnp6YyOPl_eVFcgT7w/l.jpg" alt="Burma Love">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/3ugNIyZ6oEOiwWWWMPfoFw/l.jpg" alt="Burma Love dish">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/m9Bxkg-_zcz206_dZI-mnw/l.jpg" alt="Burma Love cocktail">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/6IKHHZjwlh2sOIecs3iBwA/l.jpg" alt="Burma Love interior">
+        </div>
+        <div class="limited-body">
+          <div class="urgency-row">
+            <span class="urgency-badge">Seasonal Drinks</span>
+            <span class="limited-biz">Burma Love · Menlo Park · 94025</span>
+          </div>
+          <div class="limited-title">Temple of Tamarind + Ube Thai — Rotating Seasonal Cocktails</div>
+          <div class="limited-desc">Burmese restaurant with a rotating cocktail menu. The Temple of Tamarind rims the glass with tamarind paste — you can sip from the rim for extra intensity or drink through the straw. The Ube Thai is deep, sweet, and unmistakably purple. Both seasonal.</div>
+          <div class="limited-quote">"The rim of the glass has tamarind so if you want more flavor you sip from the rim vs just drinking from the straw. I was tempted to get another. The aesthetics here are so beautiful and relaxing."</div>
+          <div class="limited-footer">
+            <span class="limited-chip">📍 Menlo Park</span>
+            <span class="limited-chip">★★★★★</span>
+            <span class="limited-chip">Seasonal cocktails</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="limited-card">
+        <div class="limited-photos">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/YT49p5jjtr4DcP04BZ98mQ/l.jpg" alt="Watawa Sushi">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/ZUTH5C43RhGwcGG1ngqRrA/l.jpg" alt="Watawa Sushi pond">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/xYJqv-ZjIgNoWeSvBH0eUw/l.jpg" alt="Watawa Sushi dish">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/ZUTH5C43RhGwcGG1ngqRrA/l.jpg" alt="Watawa interior">
+        </div>
+        <div class="limited-body">
+          <div class="urgency-row">
+            <span class="urgency-badge seasonal">Holiday Decor</span>
+            <span class="limited-biz">Watawa Sushi · Astoria · 11105</span>
+          </div>
+          <div class="limited-title">Rose Petal Pond — Holiday Season Ambiance</div>
+          <div class="limited-desc">This modern sushi restaurant in Astoria features a live indoor pond that gets decorated for the season. During the holiday period, it is sprinkled with rose petals. Reviewers note that if you miss it, you have to wait a year.</div>
+          <div class="limited-quote">"A beautifully maintained pond sprinkled with rose petals for the holiday season. The secondary area has long bar seating, additional tables, and this stunning feature. Worth timing your visit for."</div>
+          <div class="limited-footer">
+            <span class="limited-chip">📍 Astoria, Queens</span>
+            <span class="limited-chip">★★★★★</span>
+            <span class="limited-chip">Holiday seasonal</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="limited-card">
+        <div class="limited-photos">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/kOlAwqGHp0eqidlM36aEFA/l.jpg" alt="Little Original Joes">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/8mfHqubjhlkzeJgLEP-2nw/l.jpg" alt="Little Original Joes pasta">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/Hm0zcVJ1gF02cKQtyd5SoA/l.jpg" alt="Little Original Joes interior">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/kOlAwqGHp0eqidlM36aEFA/l.jpg" alt="LOJ food">
+        </div>
+        <div class="limited-body">
+          <div class="urgency-row">
+            <span class="urgency-badge limited">Must-Try Item</span>
+            <span class="limited-biz">Little Original Joe's · Union St · 94123</span>
+          </div>
+          <div class="limited-title">Marry Me Farfalle — Signature Seasonal Pasta</div>
+          <div class="limited-desc">Gorgeous Italian-American spot on Union Street. The Marry Me Farfalle is the dish reviewers most urgently recommend — thick sauce, generous protein, perfectly coated pasta. Menu items rotate seasonally and this one has been called the best pasta in the Bay Area.</div>
+          <div class="limited-quote">"Hands down one of my favorite pastas in the Bay Area. The sauce is everything it should be — thick and flavorful without being overpowering, and it coats every piece of farfalle."</div>
+          <div class="limited-footer">
+            <span class="limited-chip">📍 Marina District</span>
+            <span class="limited-chip">★★★★★</span>
+            <span class="limited-chip">Popular · reserve ahead</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====== CHEF SPOTLIGHTS ====== -->
+  <div id="chef" class="section">
+    <div class="sec-head">
+      <div class="sec-title">Chef &amp; Owner Spotlights</div>
+      <div class="sec-desc">The people behind your neighborhood favorites — mentioned by name in real reviews.</div>
+    </div>
+    <div class="chefs-grid">
+
+      <div class="chef-card">
+        <div class="chef-photo-grid">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/MODC5NxA2nYq2VPKULbUpQ/l.jpg" alt="Atelier Crenn">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/wla7GfZC8VXj8b67G56ViA/l.jpg" alt="Atelier Crenn dish">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/U5YeBKJBwSdTE4QX_VOBvw/l.jpg" alt="Atelier Crenn plating">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/9ab0UKHr_gf5bSvg9_Q29Q/l.jpg" alt="Atelier Crenn interior">
+        </div>
+        <div class="chef-body">
+          <div class="chef-role-row">
+            <span class="chef-role">Executive Chef</span>
+            <span class="chef-awards">★★★ Michelin</span>
+          </div>
+          <div class="chef-name"><span>Dominique Crenn</span></div>
+          <div class="chef-at">Atelier Crenn · Cow Hollow · 94123</div>
+          <div class="chef-bio">The only female chef in the US to hold three Michelin stars. Crenn's cooking is described less as a meal and more as a story — poetic, seasonal, rooted in memory. Reservations open on Tock months out. The room is small, the plating precise, and the experience consistently described as one of the best in the city.</div>
+          <div class="sig-dish">
+            <div class="sig-label">Known For</div>
+            <div class="sig-name">Poetic Cuisine</div>
+            <div class="sig-desc">Each dish arrives with a verse. Multi-course tasting menu only.</div>
+          </div>
+          <div class="chef-quote">
+            "It had long been on my bookmark. When I finally went — it exceeded every expectation. The kind of meal you remember for years."
+            <strong>— Verified review, Cow Hollow</strong>
+          </div>
+          <div class="chef-meta">
+            <span class="chef-chip">📍 94123</span>
+            <span class="chef-chip">Tasting menu only</span>
+            <span class="chef-chip">Book on Tock</span>
+            <span class="chef-chip">3 Michelin stars</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chef-card">
+        <div class="chef-photo-grid">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/nU2QzOguQRoqm1yJsI723g/l.jpg" alt="Norcina pizza">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/3GUHcUffWwjsQRH98bAWSQ/l.jpg" alt="Norcina interior">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/b6JXr9GWCFVzvx4MWPMwZg/l.jpg" alt="Norcina pizza 2">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/hI_wNO7thN_8gplzwt7eKw/l.jpg" alt="Norcina detail">
+        </div>
+        <div class="chef-body">
+          <div class="chef-role-row">
+            <span class="chef-role">Owner</span>
+          </div>
+          <div class="chef-name"><span>Angelo</span></div>
+          <div class="chef-at">Norcina · Marina District · 94123</div>
+          <div class="chef-bio">A small, owner-operated Italian restaurant with an open kitchen and a visible wood-fire brick oven. Angelo runs a tight room — walk in and you immediately see your pizza being made. Reviewers describe it as the kind of place where the owner's presence makes the difference: personal, consistent, unhurried.</div>
+          <div class="sig-dish">
+            <div class="sig-label">Known For</div>
+            <div class="sig-name">Wood-Fire Pizza + Fresh Pasta</div>
+            <div class="sig-desc">Open kitchen, freshly made, visible from every seat.</div>
+          </div>
+          <div class="chef-quote">
+            "You could see the hot brick oven right away. We were able to watch our pizzas being made — that kind of transparency says everything about how Angelo runs this place."
+            <strong>— Verified review, Marina District</strong>
+          </div>
+          <div class="chef-meta">
+            <span class="chef-chip">📍 94123</span>
+            <span class="chef-chip">Walk-ins welcome</span>
+            <span class="chef-chip">Wood-fire oven</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chef-card">
+        <div class="chef-photo-grid">
+          <img src="https://yelp-images.s3.amazonaws.com/bphoto/SvdTI0_gwLLHuSen9FB3Gw/l.jpg" alt="Kolaj exterior" class="solo">
+        </div>
+        <div class="chef-body">
+          <div class="chef-role-row">
+            <span class="chef-role">Owner &amp; Maker</span>
+          </div>
+          <div class="chef-name"><span>The Owners</span></div>
+          <div class="chef-at">Kolaj · Astoria Marina · 11105</div>
+          <div class="chef-bio">A new Mediterranean coffee shop where the owners are present every day — described as "tremendously kind" by early visitors. Some of the pastry work is done in-house. The kind of place that only exists when someone genuinely cares, caught in the rare window before it gets crowded and discovered.</div>
+          <div class="sig-dish">
+            <div class="sig-label">Known For</div>
+            <div class="sig-name">Mediterranean Pastries + Coffee</div>
+            <div class="sig-desc">Owner-made, rotating — best to visit soon while it is still quiet.</div>
+          </div>
+          <div class="chef-quote">
+            "I should highlight the people here — I believe they are the owners — they are tremendously kind. The ambiance is great and relaxing especially if you are working remote."
+            <strong>— Verified review, Astoria</strong>
+          </div>
+          <div class="chef-meta">
+            <span class="chef-chip">📍 11105</span>
+            <span class="chef-chip">New opening</span>
+            <span class="chef-chip">Owner-present daily</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll(".section").forEach(function(s){ s.classList.remove("active"); });
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  el.classList.add("active");
+}
+</script>
+</body>
+</html>
