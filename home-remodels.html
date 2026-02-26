@@ -103,6 +103,51 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sa
 
 .card-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:4px;}
 .loc-chip{font-size:.65rem;font-weight:600;padding:3px 9px;border-radius:12px;background:var(--surface3);border:1px solid var(--border);color:var(--text3);}
+
+/* Q&A REDDIT STYLE */
+.qa-list{display:flex;flex-direction:column;gap:16px;}
+
+.thread{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s;}
+.thread:hover{border-color:rgba(167,139,250,.25);}
+
+.thread-meta{padding:14px 16px 0;display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:.72rem;}
+.subreddit{font-weight:700;color:var(--paint);}
+.thread-sep{color:var(--text3);}
+.thread-user{color:var(--text3);}
+.thread-time{color:var(--text3);}
+
+.flair{font-size:.6rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:10px;}
+.flair-green{background:rgba(0,212,170,.15);color:var(--green);}
+.flair-red{background:rgba(255,65,84,.15);color:var(--red);}
+.flair-blue{background:rgba(56,189,248,.15);color:var(--blue);}
+.flair-warm{background:rgba(255,140,66,.15);color:var(--warm);}
+
+.thread-title{padding:10px 16px 6px;font-size:.95rem;font-weight:700;line-height:1.4;color:var(--text);}
+.thread-body{padding:0 16px 10px;font-size:.8rem;color:var(--text2);line-height:1.6;}
+
+.thread-votes{padding:8px 16px 12px;display:flex;align-items:center;gap:10px;font-size:.75rem;border-bottom:1px solid var(--border);}
+.upvote-btn,.downvote-btn{color:var(--text3);cursor:pointer;font-size:.8rem;}
+.upvote-btn:hover{color:var(--warm);}
+.vote-count{font-weight:700;font-size:.8rem;color:var(--text);}
+.comment-count{color:var(--text3);margin-left:4px;}
+
+.comments{padding:12px 16px 16px;display:flex;flex-direction:column;gap:12px;}
+
+.comment{background:var(--surface2);border-radius:8px;padding:12px 14px;border-left:3px solid var(--border);}
+.comment.top-answer{border-left-color:var(--green);}
+.comment.reply{margin-top:10px;margin-left:16px;background:var(--surface3);border-left-color:var(--paint);}
+
+.comment-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;font-size:.7rem;}
+.comment-user{font-weight:700;color:var(--paint);}
+.comment-score{color:var(--green);font-weight:600;}
+.comment-badge{font-size:.58rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:rgba(0,212,170,.15);color:var(--green);}
+.comment-badge.op{background:rgba(56,189,248,.15);color:var(--blue);}
+
+.comment-body{font-size:.8rem;color:var(--text2);line-height:1.65;}
+.comment-body strong{color:var(--text);}
+
+.comment-actions{display:flex;gap:12px;margin-top:8px;font-size:.7rem;font-weight:600;color:var(--text3);cursor:pointer;}
+.comment-actions span:hover{color:var(--text);}
 </style>
 </head>
 <body>
@@ -559,6 +604,249 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sa
     </div>
 
   </div><!-- /projects -->
+
+  <!-- Q&A SECTION -->
+  <div style="margin-top:56px;">
+    <div class="eyebrow" style="margin-bottom:10px;">Neighborhood Discussions</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;margin-bottom:6px;">What People Are Asking</h2>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:28px;">Real questions from the neighborhood, answered with local context.</p>
+
+    <div class="qa-list">
+
+      <!-- THREAD 1 -->
+      <div class="thread">
+        <div class="thread-meta">
+          <span class="subreddit">r/SFHomeowners</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-user">u/mission_flat_life</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-time">3 days ago</span>
+          <span class="flair flair-green">Hiring Help</span>
+        </div>
+        <div class="thread-title">First bathroom remodel in SF — got 3 quotes ranging from $8k to $22k for same job. Is this normal??</div>
+        <div class="thread-body">
+          Planning to gut and redo the main bath in my Edwardian flat. Got three quotes from contractors, all supposedly covering the same scope (tile, vanity, shower, fixtures). Prices are $8,400 / $14,200 / $22,000. What's going on here and how do I evaluate them?
+        </div>
+        <div class="thread-votes">
+          <span class="upvote-btn">▲</span>
+          <span class="vote-count">847</span>
+          <span class="downvote-btn">▼</span>
+          <span class="comment-count">💬 134 comments</span>
+        </div>
+
+        <div class="comments">
+          <div class="comment top-answer">
+            <div class="comment-meta">
+              <span class="comment-user">u/remodel_vet_94110</span>
+              <span class="comment-score">↑ 612</span>
+              <span class="comment-badge">Top Answer</span>
+            </div>
+            <div class="comment-body">
+              This is completely normal for SF. That spread usually comes down to three things: (1) <strong>what's actually included in prep</strong> — cheaper bids often skip waterproofing membrane, cement board, or proper tile setting; (2) <strong>who's doing the work</strong> — the low bid might be a crew-of-one, the high bid might have a PM + dedicated crew; (3) <strong>permit intent</strong> — some contractors will do bathroom work without pulling permits, which is cheaper but creates problems at resale.
+              <br><br>Ask each one: "Does this include a waterproofing membrane behind the shower tile?" The answer will tell you a lot.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span><span>Save</span></div>
+
+            <div class="comment reply">
+              <div class="comment-meta">
+                <span class="comment-user">u/mission_flat_life</span>
+                <span class="comment-score">↑ 89</span>
+                <span class="comment-badge op">OP</span>
+              </div>
+              <div class="comment-body">This is exactly the kind of thing I needed to know. The cheapest contractor couldn't even tell me what brand of waterproofing they use. That's probably my answer.</div>
+              <div class="comment-actions"><span>Reply</span><span>Share</span></div>
+            </div>
+
+            <div class="comment reply">
+              <div class="comment-meta">
+                <span class="comment-user">u/noevalley_contractor</span>
+                <span class="comment-score">↑ 204</span>
+              </div>
+              <div class="comment-body">Contractor here. Also worth asking: "Is demo included?" and "Who handles material sourcing?" A quote that doesn't include demo or materials can look cheap and end up expensive fast.</div>
+              <div class="comment-actions"><span>Reply</span><span>Share</span></div>
+            </div>
+          </div>
+
+          <div class="comment">
+            <div class="comment-meta">
+              <span class="comment-user">u/sf_reno_survivor</span>
+              <span class="comment-score">↑ 311</span>
+            </div>
+            <div class="comment-body">
+              We just finished a 2-bath remodel with We Do Construction — came in at $18k total for two full baths. The mid-range quote was closest to reality once we factored in everything. The spreadsheet they gave us upfront listing every line item was a lifesaver for comparing apples to apples.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span><span>Save</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THREAD 2 -->
+      <div class="thread">
+        <div class="thread-meta">
+          <span class="subreddit">r/SFHomeowners</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-user">u/castro_flat_owner</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-time">1 week ago</span>
+          <span class="flair flair-red">Warning</span>
+        </div>
+        <div class="thread-title">Painter showed up for 2 days, took 50% deposit, hasn't responded in 10 days. Options?</div>
+        <div class="thread-body">
+          Found a painter on Nextdoor, paid $2,800 deposit on a $5,600 job. They worked for 2 days (primer only), then nothing. Texts going unanswered. Do I have any recourse?
+        </div>
+        <div class="thread-votes">
+          <span class="upvote-btn">▲</span>
+          <span class="vote-count">1.2k</span>
+          <span class="downvote-btn">▼</span>
+          <span class="comment-count">💬 218 comments</span>
+        </div>
+
+        <div class="comments">
+          <div class="comment top-answer">
+            <div class="comment-meta">
+              <span class="comment-user">u/bay_area_legal_renter</span>
+              <span class="comment-score">↑ 891</span>
+              <span class="comment-badge">Top Answer</span>
+            </div>
+            <div class="comment-body">
+              In order: <strong>1)</strong> Send a certified letter to their business address giving 5 business days to resume or refund. <strong>2)</strong> File a CSLB complaint (CA Contractors State License Board) — this gets their attention fast. <strong>3)</strong> Small claims court up to $10k, no lawyer needed. Keep all texts, contracts, payment receipts.
+              <br><br>Also leave honest Yelp + Google reviews now — both so others are warned and because it sometimes prompts a response.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span><span>Save</span></div>
+
+            <div class="comment reply">
+              <div class="comment-meta">
+                <span class="comment-user">u/castro_flat_owner</span>
+                <span class="comment-score">↑ 145</span>
+                <span class="comment-badge op">OP</span>
+              </div>
+              <div class="comment-body">Update: filed CSLB complaint Monday, got a call Wednesday. They're coming back Friday to finish. Don't know if I trust them at this point but at least they responded.</div>
+              <div class="comment-actions"><span>Reply</span><span>Share</span></div>
+            </div>
+          </div>
+
+          <div class="comment">
+            <div class="comment-meta">
+              <span class="comment-user">u/inner_richmond_reno</span>
+              <span class="comment-score">↑ 267</span>
+            </div>
+            <div class="comment-body">
+              This is why I only pay 10–15% deposit now, never 50%. Anything above 25% upfront on a painting job is a red flag. Legit contractors don't need that much cash before work is done.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span><span>Save</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THREAD 3 -->
+      <div class="thread">
+        <div class="thread-meta">
+          <span class="subreddit">r/SFHomeowners</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-user">u/glen_park_homeowner</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-time">2 weeks ago</span>
+          <span class="flair flair-blue">Materials</span>
+        </div>
+        <div class="thread-title">Contractor wants to use their "house brand" paint instead of Sherwin-Williams. Should I push back?</div>
+        <div class="thread-body">
+          Getting my full interior repainted (~1,400 sqft). Contractor says they use their own supplier's paint which they claim is "equivalent to SW Duration." It's saving me $400. Worth it or insist on the name brand?
+        </div>
+        <div class="thread-votes">
+          <span class="upvote-btn">▲</span>
+          <span class="vote-count">503</span>
+          <span class="downvote-btn">▼</span>
+          <span class="comment-count">💬 97 comments</span>
+        </div>
+
+        <div class="comments">
+          <div class="comment top-answer">
+            <div class="comment-meta">
+              <span class="comment-user">u/painted_sf_twice</span>
+              <span class="comment-score">↑ 388</span>
+              <span class="comment-badge">Top Answer</span>
+            </div>
+            <div class="comment-body">
+              Push back, politely but firmly. "Equivalent to SW Duration" is impossible to verify, and paint is genuinely where contractors cut corners when pressed on price.
+              <br><br>Sherwin-Williams Emerald or Duration is about $70–90/gallon. A full interior job might use 12–15 gallons — that's a $300–400 real cost difference, not $400 savings passed to you. Ask them to specify the exact product + sheen on the contract. If they won't, that tells you something.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span><span>Save</span></div>
+          </div>
+
+          <div class="comment">
+            <div class="comment-meta">
+              <span class="comment-user">u/mendez_customer_94110</span>
+              <span class="comment-score">↑ 201</span>
+            </div>
+            <div class="comment-body">
+              My painter (Mendez) specified everything in the contract — brand, sheen, number of coats. That kind of detail upfront made me trust them completely. If your contractor won't put it in writing, walk.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THREAD 4 -->
+      <div class="thread">
+        <div class="thread-meta">
+          <span class="subreddit">r/SFHomeowners</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-user">u/potrero_tile_question</span>
+          <span class="thread-sep">·</span>
+          <span class="thread-time">5 days ago</span>
+          <span class="flair flair-warm">Flooring</span>
+        </div>
+        <div class="thread-title">Kitchen tile installer found "toxic exterior plywood" subfloor when they pulled up old vinyl. Now wants $1,800 more. Legit?</div>
+        <div class="thread-body">
+          We're halfway through a kitchen floor tile job. Installer pulled up the vinyl and found what they're calling "toxic exterior plywood" used as subfloor — says the whole subfloor has to be rebuilt before tile can go down. Wasn't in original quote. Is this a known issue or am I being taken for a ride?
+        </div>
+        <div class="thread-votes">
+          <span class="upvote-btn">▲</span>
+          <span class="vote-count">692</span>
+          <span class="downvote-btn">▼</span>
+          <span class="comment-count">💬 156 comments</span>
+        </div>
+
+        <div class="comments">
+          <div class="comment top-answer">
+            <div class="comment-meta">
+              <span class="comment-user">u/gm_elite_tile_customer</span>
+              <span class="comment-score">↑ 544</span>
+              <span class="comment-badge">Top Answer</span>
+            </div>
+            <div class="comment-body">
+              This is extremely common in SF Edwardian and Victorian homes and is 100% legitimate. Exterior plywood was frequently used as subfloor in older homes — it's not rated for interior moisture exposure and can't hold tile without cracking or delaminating.
+              <br><br>We had the exact same thing happen. The contractor (GM Elite Tile) gave us two options: lay cement board over existing floor (cheaper but raised floor height) or reinforce joists and lower the subfloor to match adjacent room. We picked the better option. $1,800 for full subfloor rebuild is actually reasonable — get a second opinion but I wouldn't assume bad faith.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span><span>Save</span></div>
+
+            <div class="comment reply">
+              <div class="comment-meta">
+                <span class="comment-user">u/potrero_tile_question</span>
+                <span class="comment-score">↑ 78</span>
+                <span class="comment-badge op">OP</span>
+              </div>
+              <div class="comment-body">This is incredibly helpful. Asked them to show me photos of what they found before continuing — they sent them immediately which felt like a good sign. Going ahead with it.</div>
+              <div class="comment-actions"><span>Reply</span><span>Share</span></div>
+            </div>
+          </div>
+
+          <div class="comment">
+            <div class="comment-meta">
+              <span class="comment-user">u/sf_old_house_problems</span>
+              <span class="comment-score">↑ 312</span>
+            </div>
+            <div class="comment-body">
+              Pre-1960s SF house = expect surprises under any surface. Knob-and-tube wiring, galvanized pipes, exterior plywood subfloors, horsehair plaster — it's all still out there. Good contractors will document and present options. Sketchy ones will just demand cash.
+            </div>
+            <div class="comment-actions"><span>Reply</span><span>Share</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /qa-list -->
+  </div><!-- /qa section -->
+
 </div><!-- /wrap -->
 
 <script>
