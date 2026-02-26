@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Remodel Results — Neighborhood Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;--surface:#141420;--surface2:#1c1c2e;--surface3:#242438;
+  --border:#2a2a40;--text:#e8e8f0;--text2:#9898b0;--text3:#6a6a82;
+  --green:#00d4aa;--warm:#ff8c42;--paint:#a78bfa;--red:#ff4154;--gold:#ffd700;
+  --blue:#38bdf8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,sans-serif;line-height:1.5;}
+
+/* NAV */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 0;}
+.topbar-inner{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:1rem;font-weight:900;}
+.logo em{color:var(--paint);font-style:italic;}
+.back{font-size:.75rem;font-weight:600;color:var(--text3);text-decoration:none;transition:color .2s;}
+.back:hover{color:var(--text);}
+
+.wrap{max-width:960px;margin:0 auto;padding:0 24px 80px;}
+
+/* HERO */
+.hero{padding:44px 0 32px;}
+.eyebrow{font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3rem);font-weight:900;line-height:1.1;margin-bottom:12px;}
+.hero h1 em{color:var(--paint);font-style:italic;}
+.hero-sub{font-size:.9rem;color:var(--text2);max-width:560px;}
+
+/* STAT STRIP */
+.stats{display:flex;gap:1px;background:var(--border);border-radius:10px;overflow:hidden;margin:24px 0 32px;}
+.stat{flex:1;background:var(--surface);padding:12px 8px;text-align:center;}
+.stat-n{font-size:1.15rem;font-weight:900;line-height:1;}
+.stat-n.g{color:var(--green);}
+.stat-n.w{color:var(--warm);}
+.stat-n.p{color:var(--paint);}
+.stat-n.b{color:var(--blue);}
+.stat-l{font-size:.58rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:3px;}
+
+/* FILTERS */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
+.filter-btn{font-size:.75rem;font-weight:700;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.filter-btn:hover{border-color:var(--paint);color:var(--text);}
+.filter-btn.active{background:var(--paint);border-color:var(--paint);color:#fff;}
+
+/* PROJECT CARDS */
+.projects{display:flex;flex-direction:column;gap:32px;}
+
+.project-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s;}
+.project-card:hover{border-color:var(--border);border-color:rgba(167,139,250,.3);}
+.project-card.hidden{display:none;}
+
+.card-layout{display:grid;grid-template-columns:1fr 1fr;min-height:320px;}
+@media(max-width:660px){.card-layout{grid-template-columns:1fr;}}
+
+/* PHOTO SIDE */
+.photo-side{position:relative;background:var(--surface2);}
+.photo-grid-1{display:grid;grid-template-rows:1fr;height:100%;}
+.photo-grid-2{display:grid;grid-template-rows:1fr 1fr;height:100%;}
+.photo-grid-3{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;height:100%;}
+
+.photo-slot{overflow:hidden;position:relative;}
+.photo-slot img{width:100%;height:100%;object-fit:cover;display:block;min-height:160px;transition:transform .3s;}
+.photo-slot:hover img{transform:scale(1.04);}
+.photo-grid-3 .photo-slot:first-child{grid-row:span 2;}
+
+/* after-badge overlay */
+.after-badge{position:absolute;top:10px;left:10px;font-size:.6rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--green);color:#000;padding:3px 8px;border-radius:4px;}
+
+/* STORY SIDE */
+.story-side{padding:24px 28px;display:flex;flex-direction:column;gap:14px;}
+
+.cat-badge{font-size:.65rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:4px;display:inline-block;width:fit-content;}
+.cat-badge.kitchen{background:rgba(255,140,66,.15);color:var(--warm);}
+.cat-badge.bathroom{background:rgba(56,189,248,.15);color:var(--blue);}
+.cat-badge.painting{background:rgba(167,139,250,.15);color:var(--paint);}
+.cat-badge.outdoor{background:rgba(0,212,170,.15);color:var(--green);}
+.cat-badge.flooring{background:rgba(255,215,0,.15);color:var(--gold);}
+.cat-badge.roofing{background:rgba(255,65,84,.15);color:var(--red);}
+.cat-badge.remodel{background:rgba(167,139,250,.15);color:var(--paint);}
+
+.biz-row{display:flex;align-items:center;gap:8px;}
+.biz-name{font-size:.9rem;font-weight:700;}
+.biz-stars{font-size:.8rem;color:var(--gold);letter-spacing:-1px;}
+
+.before-block{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+.block-label{font-size:.58rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.block-label.before{color:var(--red);}
+.block-label.after{color:var(--green);}
+.block-text{font-size:.8rem;color:var(--text2);line-height:1.6;font-style:italic;}
+.block-text em{color:var(--text);font-style:normal;font-weight:600;}
+
+.arrow-divider{text-align:center;color:var(--text3);font-size:1.2rem;line-height:1;margin:-4px 0;}
+
+.quote-block{border-left:3px solid var(--paint);padding-left:12px;}
+.quote-text{font-size:.8rem;color:var(--text2);line-height:1.65;font-style:italic;}
+.quote-attr{font-size:.7rem;color:var(--text3);margin-top:5px;font-style:normal;}
+
+.card-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:4px;}
+.loc-chip{font-size:.65rem;font-weight:600;padding:3px 9px;border-radius:12px;background:var(--surface3);border:1px solid var(--border);color:var(--text3);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">Neighborhood <em>Hub</em></div>
+    <a href="neighborhood-desktop-v4.html" class="back">← Back to Hub</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">From 2,300+ Local Home Service Reviews</div>
+    <h1>Real Projects,<br><em>Real Results</em></h1>
+    <p class="hero-sub">Before-and-after stories from verified neighborhood reviews — what actually happened and how it turned out.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n g">132</div><div class="stat-l">project reviews</div></div>
+    <div class="stat"><div class="stat-n p">4.9★</div><div class="stat-l">avg rating</div></div>
+    <div class="stat"><div class="stat-n w">7</div><div class="stat-l">project types</div></div>
+    <div class="stat"><div class="stat-n b">94110</div><div class="stat-l">primary zip</div></div>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filter('all')">All Projects</button>
+    <button class="filter-btn" onclick="filter('kitchen')">Kitchen</button>
+    <button class="filter-btn" onclick="filter('bathroom')">Bathroom</button>
+    <button class="filter-btn" onclick="filter('painting')">Painting</button>
+    <button class="filter-btn" onclick="filter('outdoor')">Outdoor</button>
+    <button class="filter-btn" onclick="filter('flooring')">Flooring</button>
+    <button class="filter-btn" onclick="filter('roofing')">Roofing</button>
+    <button class="filter-btn" onclick="filter('remodel')">Remodel</button>
+  </div>
+
+  <div class="projects">
+
+    <!-- KITCHEN TILE -->
+    <div class="project-card" data-cat="kitchen">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-3">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/OpIImVmSv_olSdrKr-hMYA/l.jpg" alt="Kitchen tile result" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/3qQn-SGwH6BEpQrTE1NybA/l.jpg" alt="Kitchen tile detail" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/oVR74ZesQssWfaT0mi4DCg/l.jpg" alt="Kitchen tile close" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge kitchen">Kitchen</span>
+          <div class="biz-row">
+            <span class="biz-name">GM Elite Tile &amp; Stone</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Problem</div>
+            <div class="block-text">"Our original kitchen floor was <em>creaky, not level</em>, and covered with fake wood vinyl boards that weren't wearing well. When they pulled up the flooring, they found the subfloor was made with <em>toxic exterior plywood</em>."</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Full subfloor rebuild. Joists reinforced and lowered to match adjacent room level. Beautiful new tile — <em>exactly level with no lippage</em>.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"They were AMAZING: hard working, patient, meticulous perfectionists. They took their time to make sure everything was done right. The results speak for themselves."</div>
+            <div class="quote-attr">— Verified review, Mission District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94110</span>
+            <span class="loc-chip">Tile &amp; Stone</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BATHROOM REMODEL -->
+    <div class="project-card" data-cat="bathroom">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-3">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/ECaaN7oUPTbVch-qVsIDHg/l.jpg" alt="Bathroom remodel result" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/h7D7em1b1_YIlM1Y9F9Qrg/l.jpg" alt="Bathroom detail" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/5v9Dn2YNYfq0KZgeK_H8ZA/l.jpg" alt="Bathroom fixtures" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge bathroom">Bathroom</span>
+          <div class="biz-row">
+            <span class="biz-name">We Do Construction</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Project</div>
+            <div class="block-text">Full remodel of <em>2 full bathrooms + 1 half bath</em> in occupied home. Sourcing, design, permits, and daily cleanup — all managed by the crew.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Steam shower addition (suggested mid-project by contractor). Crew showed up <em>every day including weekends</em>. Neighbors noticed.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"Check out my before and afters! You will be amazed at the transformation! A huge thank you to Jacob and your team — you guys rocked it!"</div>
+            <div class="quote-attr">— Verified review, Marina District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94123</span>
+            <span class="loc-chip">Full Remodel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTERIOR PAINTING -->
+    <div class="project-card" data-cat="painting">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-3">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/e2HAw_pBF8i4cvfc8K1Pbg/l.jpg" alt="Exterior painting result" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/dlEzM6Juu8ADM56U8YcOVw/l.jpg" alt="Exterior detail" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/1g3ogFhbe0od47XeSbI6Zg/l.jpg" alt="Paint trim" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge painting">Painting</span>
+          <div class="biz-row">
+            <span class="biz-name">Mendez Professional Painting</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Problem</div>
+            <div class="block-text">Faded exterior, aging soffits, <em>loose paint throughout</em>. Owner wanted to change from painted soffits to natural wood mid-project.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Power-washed, <em>meticulously scraped</em>, two full coats. Mid-project design change handled without issue. SF noise ordinance followed throughout.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"Junior brought over a briefcase of color books. His estimate was slightly higher but he came across as trustworthy — and that trust was completely earned."</div>
+            <div class="quote-attr">— Verified review, Mission District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94110</span>
+            <span class="loc-chip">Exterior</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERIOR PAINTING -->
+    <div class="project-card" data-cat="painting">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-2">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/6tmYRzKmpcsL6xSMIFS5mw/l.jpg" alt="Interior painting result" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/w0q1XpTUVNz2bSZoz7kPtQ/l.jpg" alt="Interior painting detail" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge painting">Painting</span>
+          <div class="biz-row">
+            <span class="biz-name">Mendez Professional Painting</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Project</div>
+            <div class="block-text">Full apartment interior repaint. Odd spaces, window blinds, caulk issues, and <em>plaster repair</em> all needed — but owner only asked for paint.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Crew replaced bathroom caulk unprompted, fixed broken plaster, <em>re-balanced and lubricated</em> panel blinds, repackaged all furniture. Left it cleaner than they found it.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"My 5-star rating isn't only based on the finished product. It's based on the many little details that Junior and his crew included in the job, no charge, that impressed me the most."</div>
+            <div class="quote-attr">— Verified review, Mission District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94110</span>
+            <span class="loc-chip">Interior</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTDOOR / GARDEN -->
+    <div class="project-card" data-cat="outdoor">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-3">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/SLFNQB59ayjkr4QxXLUNLQ/l.jpg" alt="Outdoor transformation" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/SuqAGeBnPaE11GpUyIGwHg/l.jpg" alt="Garden result" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/lf37ME__CQzBtfmoodXyzw/l.jpg" alt="Outdoor detail" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge outdoor">Outdoor</span>
+          <div class="biz-row">
+            <span class="biz-name">Matthew Kelly Construction</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Problem</div>
+            <div class="block-text">Main sewer line failed — <em>"backing up awful gunk everywhere."</em> Needed someone to tear up concrete, dig, and redo the whole line. Bids were all over the map.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">New sewer line installed. Contractor's vision: removed excess concrete, added <em>a gorgeous garden</em>. Disaster became a complete outdoor transformation.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"I never knew that a bad yucky disaster would end up making my enjoyment of my home 100 times better — my kids love it. I owe it all to Matthew."</div>
+            <div class="quote-attr">— Verified review, Marina District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94123</span>
+            <span class="loc-chip">Sewer + Garden</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANDSCAPING -->
+    <div class="project-card" data-cat="outdoor">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-2">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/a5idDTtHs3IF0IiDx8nJMQ/l.jpg" alt="Landscape after" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/OUO8hbW4boK8MEKJ_Gko9g/l.jpg" alt="Landscape detail" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge outdoor">Outdoor</span>
+          <div class="biz-row">
+            <span class="biz-name">Green Landscape Construction</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Problem</div>
+            <div class="block-text">Backyard overgrown with existing plants and pebbles. Rotting wood gate. <em>Old planter impossible to get rid of.</em> Needed a complete rethink.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">New artificial grass with gopher wire. <em>Old trees removed, planter demolished.</em> Gate replaced to match. Completed in 3 days. Everything hauled away.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"It was incredible how quickly they finished — all in three days. It looks fantastic and we are so happy with his work."</div>
+            <div class="quote-attr">— Verified review, Mission District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94110</span>
+            <span class="loc-chip">Landscaping</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLOORING / MOLD -->
+    <div class="project-card" data-cat="flooring">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-1">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/aT6zHp7gvOEHeUtDGydEQQ/l.jpg" alt="Flooring rebuild result" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge flooring">Flooring</span>
+          <div class="biz-row">
+            <span class="biz-name">We Do Construction</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Problem</div>
+            <div class="block-text">Mold discovered in condo's first floor — <em>entire floor had to be torn out and rebuilt</em>. Owner was remote for most of the project.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Daily WhatsApp photo updates and video calls. <em>Billing totally transparent.</em> Change orders streamlined. Remote owner felt in control the whole time.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"They really cared about the work product they produced. Their pricing and billing was totally clear and fair — the team goes above and beyond."</div>
+            <div class="quote-attr">— Verified review, Marina District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94123</span>
+            <span class="loc-chip">Mold Remediation + Rebuild</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOFING -->
+    <div class="project-card" data-cat="roofing">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-1">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/EeaLEAv-Oz-Gwr-6Le-E2w/l.jpg" alt="Roofing result" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge roofing">Roofing</span>
+          <div class="biz-row">
+            <span class="biz-name">Apollo Roofing Company</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Problem</div>
+            <div class="block-text">Aging roof with inadequate gutters and downspouts. Solar panels installed — <em>weatherproofing around them was poor</em>. Water damage risk building.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Commercial-grade TPO system. Gutter system <em>redesigned entirely</em>. Solar weatherproofing corrected. <em>Up to 30-year lifespan</em> with full warranty.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"Rather than merely replacing our roof, they engineered comprehensive improvements to the original design. Their philosophy of 'doing it right the first time' is evident in every detail."</div>
+            <div class="quote-attr">— Verified review, Mission District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94110</span>
+            <span class="loc-chip">TPO + Solar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERAL REMODEL / ADDITION -->
+    <div class="project-card" data-cat="remodel">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-3">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/xh2CcwQRD5IdDv5mBzcMyQ/l.jpg" alt="Addition result" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/g0wG_Yx2H09HjMaOjoPeMw/l.jpg" alt="Addition detail" loading="lazy">
+            </div>
+            <div class="photo-slot">
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/BD_QUwo5ivva8FxVRsq0CA/l.jpg" alt="Addition interior" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge remodel">Remodel</span>
+          <div class="biz-row">
+            <span class="biz-name">Amador General Construction</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Project</div>
+            <div class="block-text"><em>400 sqft addition on an 80-year-old house.</em> Crawl space dig-out, new retaining wall, subfloor work, county permits — with a family living in the home throughout.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Delivered <em>on budget</em>. Site cleaned daily, family barely impacted. Old-house curveballs handled without drama. Client has trusted Oscar across <em>10+ years and multiple properties</em>.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"As with any old house there were curveballs. As he has been since day 1, Oscar and his team were professional at every step: communication, budget, timeliness, and diligence."</div>
+            <div class="quote-attr">— Verified review, Mission District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94110</span>
+            <span class="loc-chip">Home Addition</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTERIOR REPAIRS / PAINTING -->
+    <div class="project-card" data-cat="painting">
+      <div class="card-layout">
+        <div class="photo-side">
+          <div class="photo-grid-1">
+            <div class="photo-slot">
+              <div class="after-badge">After</div>
+              <img src="https://yelp-images.s3.amazonaws.com/bphoto/zl23M2-snc9zzFfcJxY1PA/l.jpg" alt="Exterior repairs result" loading="lazy">
+            </div>
+          </div>
+        </div>
+        <div class="story-side">
+          <span class="cat-badge painting">Painting</span>
+          <div class="biz-row">
+            <span class="biz-name">Edri Construction</span>
+            <span class="biz-stars">★★★★★</span>
+          </div>
+          <div class="before-block">
+            <div class="block-label before">The Problem</div>
+            <div class="block-text">House needed new <em>fascia, soffits, and balcony cap</em>. Two prior contractors either declined or ghosted. Owner also wanted to switch from painted to natural wood soffits mid-process.</div>
+          </div>
+          <div class="arrow-divider">↓</div>
+          <div class="before-block">
+            <div class="block-label after">The Result</div>
+            <div class="block-text">Called back same day. Estimate delivered exactly on time. <em>Design change handled without issue.</em> Communication throughout was exceptional.</div>
+          </div>
+          <div class="quote-block">
+            <div class="quote-text">"I had a feeling we would be in good hands because the communication and follow-up were all on point — and I was right. So happy we found Edri Construction."</div>
+            <div class="quote-attr">— Verified review, Mission District</div>
+          </div>
+          <div class="card-footer">
+            <span class="loc-chip">📍 94110</span>
+            <span class="loc-chip">Exterior Repairs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /projects -->
+</div><!-- /wrap -->
+
+<script>
+function filter(cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.project-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+}
+</script>
+</body>
+</html>
