@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neighborhood Hub — Time-Aware Feed</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            yelp: '#D32323',
+            'yelp-light': '#FFEAEA',
+            star: '#F5A623',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #f0f0f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    .photo-grad-1 { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+    .photo-grad-2 { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+    .photo-grad-3 { background: linear-gradient(135deg, #fd7043 0%, #ff8a65 100%); }
+    .photo-grad-4 { background: linear-gradient(135deg, #66bb6a 0%, #a5d6a7 100%); }
+    .photo-grad-5 { background: linear-gradient(135deg, #ab47bc 0%, #ce93d8 100%); }
+    .photo-grad-6 { background: linear-gradient(135deg, #ffa726 0%, #ffcc02 100%); }
+    .photo-grad-7 { background: linear-gradient(135deg, #26c6da 0%, #80deea 100%); }
+    .photo-grad-8 { background: linear-gradient(135deg, #ef5350 0%, #e57373 100%); }
+    .map-bg {
+      background:
+        linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px),
+        linear-gradient(135deg, #c8e6c9 0%, #dce775 40%, #a5d6a7 70%, #b2dfdb 100%);
+      background-size: 20px 20px, 20px 20px, 100% 100%;
+    }
+    .phone-shadow { box-shadow: 0 30px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.08); }
+    .tab-active { border-bottom: 2px solid #D32323; color: #D32323; }
+    .tab-inactive { border-bottom: 2px solid transparent; color: #6b7280; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .feed-enter { animation: slideIn 0.25s ease-out; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ─── Mock Data ─────────────────────────────────────── */
+
+const RESTAURANTS = [
+  { id: 1, name: "Mama Lee's Korean Kitchen", category: "Korean, Barbecue", rating: 4.5, reviews: 321, dist: "0.3 mi", photo: "photo-grad-1", emoji: "🍖", badge: null },
+  { id: 2, name: "Tartine Manufactory", category: "Bakeries, Coffee", rating: 4.8, reviews: 2847, dist: "0.6 mi", photo: "photo-grad-2", emoji: "🥐", badge: null },
+  { id: 3, name: "Nopa", category: "American, Bar", rating: 4.4, reviews: 1203, dist: "1.1 mi", photo: "photo-grad-3", emoji: "🍽️", badge: null },
+  { id: 4, name: "Zuni Café", category: "Mediterranean, American", rating: 4.3, reviews: 2104, dist: "0.8 mi", photo: "photo-grad-6", emoji: "🫒", badge: null },
+];
+
+const COLLECTIONS = [
+  { id: 1, title: "Date night ideas", count: 24, photo: "photo-grad-5", emoji: "🍷" },
+  { id: 2, title: "Weekend brunch spots", count: 18, photo: "photo-grad-2", emoji: "🥞" },
+  { id: 3, title: "Best happy hours", count: 31, photo: "photo-grad-6", emoji: "🍺" },
+  { id: 4, title: "Late night eats", count: 12, photo: "photo-grad-8", emoji: "🌙" },
+];
+
+const SOCIAL_POSTS_IMPROMPTU = [
+  {
+    id: 1, user: "Rachel B.", elite: true, time: "2h ago",
+    title: "Highly recommend this lunch spot in FiDi",
+    body: "Just discovered Mama Lee's, and I'm already hooked! From the marinated bulgogi to sizzling pork belly, everything is chef's kiss 🔥",
+    likes: 200, comments: 15,
+  },
+  {
+    id: 2, user: "James Q.", elite: false, time: "11 ago",
+    title: "Need a cafe for work break",
+    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...",
+    likes: 4, comments: 10,
+  },
+  {
+    id: 3, user: "Rachel B.", elite: true, time: "34 ago",
+    title: "Is this Michelin's recommended brunch worth it?",
+    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore...",
+    likes: 0, comments: 0,
+  },
+];
+
+const SOCIAL_POSTS_WEEKEND = [
+  {
+    id: 1, user: "Rachel B.", elite: true, time: "1h ago",
+    title: "What's happening in Dolby Park?",
+    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    likes: 200, comments: 15,
+  },
+  {
+    id: 2, user: "James Q.", elite: false, time: "19 ago",
+    title: "Any good parking recommendations?",
+    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    likes: 0, comments: 18,
+  },
+  {
+    id: 3, user: "Rachel B.", elite: true, time: "2h ago",
+    title: "Heard there's a protest going on?",
+    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore...",
+    likes: 0, comments: 0,
+  },
+];
+
+const EVENTS_IMPROMPTU = [
+  { id: 1, title: "Pottery & Wine Experience with your local artist", date: "Sun", time: "11:00 - 2:30pm", photo: "photo-grad-5", emoji: "🏺", tag: "Arts & Crafts" },
+  { id: 2, title: "Sweet & Tonic Valentine's Edition", date: "Sun", time: "11:00 - 2:30pm", photo: "photo-grad-1", emoji: "🍸", tag: "Food & Drink" },
+];
+
+const EVENTS_WEEKEND = [
+  { id: 1, title: "Pottery & Wine Experience with your local artist", date: "Sat", time: "11:00 - 2:30pm", photo: "photo-grad-5", emoji: "🏺", tag: "Arts & Crafts" },
+  { id: 2, title: "Sweet & Tonic Valentine's Edition", date: "Sat", time: "11:00 - 2:30pm", photo: "photo-grad-1", emoji: "🍸", tag: "Food & Drink" },
+  { id: 3, title: "Sunday Farmers Market at Ferry Building", date: "Sun", time: "8:00 - 2:00pm", photo: "photo-grad-4", emoji: "🌿", tag: "Markets" },
+  { id: 4, title: "Jazz Night at Blue Note SF", date: "Sat", time: "8:00pm", photo: "photo-grad-7", emoji: "🎷", tag: "Music" },
+];
+
+const DATE_NIGHT_PHOTOS = [
+  { id: 1, title: "Best brunch with patios", photo: "photo-grad-2", emoji: "☕" },
+  { id: 2, title: "Grand opening this week you missed", photo: "photo-grad-3", emoji: "🎉" },
+  { id: 3, title: "Most romantic views", photo: "photo-grad-5", emoji: "🌉" },
+  { id: 4, title: "Cozy wine bars", photo: "photo-grad-8", emoji: "🍷" },
+];
+
+const MOST_SAVED = [
+  { id: 1, photo: "photo-grad-1", emoji: "🍖" },
+  { id: 2, photo: "photo-grad-4", emoji: "🥗" },
+  { id: 3, photo: "photo-grad-6", emoji: "🍜" },
+  { id: 4, photo: "photo-grad-2", emoji: "🥐" },
+  { id: 5, photo: "photo-grad-3", emoji: "🍕" },
+  { id: 6, photo: "photo-grad-7", emoji: "🍣" },
+];
+
+/* ─── Helpers ──────────────────────────────────────── */
+
+const getDefaultMode = () => {
+  const day = new Date().getDay();
+  const hour = new Date().getHours();
+  return (day === 0 || day === 6 || hour >= 17) ? 'weekend' : 'impromptu';
+};
+
+const Stars = ({ rating }) => {
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
+  return (
+    <span className="text-star text-xs">
+      {'★'.repeat(full)}{half ? '½' : ''}
+      <span className="text-gray-300">{'★'.repeat(5 - full - (half ? 1 : 0))}</span>
+    </span>
+  );
+};
+
+const PhotoPlaceholder = ({ cls, emoji, className = "" }) => (
+  <div className={`${cls} ${className} flex items-center justify-center text-2xl select-none`}>
+    <span>{emoji}</span>
+  </div>
+);
+
+/* ─── Sub-Components ───────────────────────────────── */
+
+const StatusBar = () => (
+  <div className="flex items-center justify-between px-4 py-2 bg-white">
+    <span className="text-xs font-semibold text-gray-900">10:07</span>
+    <div className="flex items-center gap-1">
+      <svg className="w-3 h-3 text-gray-700" fill="currentColor" viewBox="0 0 24 24"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0119 12.55M5 12.55a10.94 10.94 0 015.17-2.39M10.71 5.05A16 16 0 0122.56 9M1.42 9a15.91 15.91 0 014.7-2.88M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg>
+      <svg className="w-3 h-3 text-gray-700" fill="currentColor" viewBox="0 0 24 24"><path d="M1 6l6 6 5-5 5 5 6-6"/></svg>
+      <div className="flex items-center gap-0.5">
+        <div className="w-1 h-2 bg-gray-700 rounded-sm"></div>
+        <div className="w-1 h-3 bg-gray-700 rounded-sm"></div>
+        <div className="w-1 h-4 bg-gray-700 rounded-sm"></div>
+        <div className="w-1 h-4 bg-gray-200 rounded-sm"></div>
+      </div>
+      <div className="flex items-center border border-gray-400 rounded-sm px-0.5 py-0.5 gap-0.5">
+        <div className="w-5 h-2.5 bg-gray-700 rounded-sm"></div>
+        <div className="w-0.5 h-1.5 bg-gray-400 rounded-full"></div>
+      </div>
+    </div>
+  </div>
+);
+
+const MapStrip = () => (
+  <div className="map-bg h-24 relative overflow-hidden">
+    <div className="absolute inset-0 bg-white/10"></div>
+    <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-white rounded-full px-3 py-1 text-xs font-medium text-gray-700 shadow-md flex items-center gap-1">
+      <span className="text-yelp">📍</span> Sunnyvale
+    </div>
+    {/* Map pins */}
+    <div className="absolute top-8 left-16 w-5 h-5 bg-yelp rounded-full flex items-center justify-center shadow">
+      <span className="text-white text-xs">★</span>
+    </div>
+    <div className="absolute top-12 right-20 w-4 h-4 bg-yelp rounded-full shadow"></div>
+    <div className="absolute bottom-4 left-1/2 w-4 h-4 bg-yelp rounded-full shadow"></div>
+  </div>
+);
+
+const SearchBar = () => (
+  <div className="px-3 py-2 bg-white border-b border-gray-100">
+    <div className="flex items-center bg-gray-100 rounded-full px-3 py-2 gap-2">
+      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <span className="text-gray-400 text-sm">Search for fast & new restaurants</span>
+    </div>
+  </div>
+);
+
+const FilterChips = () => {
+  const chips = ["Restaurants", "Auto repair", "Movers", "Plumbers", "Cleaning"];
+  const [active, setActive] = useState("Restaurants");
+  return (
+    <div className="flex gap-2 px-3 py-2 overflow-x-auto scrollbar-hide bg-white border-b border-gray-100">
+      {chips.map(c => (
+        <button key={c} onClick={() => setActive(c)}
+          className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium border transition-all
+            ${active === c ? 'bg-yelp text-white border-yelp' : 'bg-white text-gray-600 border-gray-300'}`}>
+          {c}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const TabBar = ({ mode }) => {
+  const [activeTab, setActiveTab] = useState(0);
+  const tabs = mode === 'impromptu'
+    ? ["Right Now ›", "Q&A", "Events", "Videos"]
+    : ["This Weekend ›", "Q&A", "Events", "Videos"];
+  return (
+    <div className="flex bg-white border-b border-gray-200 sticky top-0 z-10">
+      {tabs.map((t, i) => (
+        <button key={t} onClick={() => setActiveTab(i)}
+          className={`flex-1 py-2.5 text-xs font-semibold text-center transition-all ${i === activeTab ? 'tab-active' : 'tab-inactive'}`}>
+          {t}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+/* ─── Business Card ────────────────────────────────── */
+const BusinessCard = ({ biz, horizontal = false }) => {
+  if (horizontal) {
+    return (
+      <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 flex-shrink-0 w-44">
+        <PhotoPlaceholder cls={biz.photo} emoji={biz.emoji} className="h-28 w-full text-3xl" />
+        <div className="p-2">
+          <p className="text-xs font-semibold text-gray-900 leading-tight line-clamp-2">{biz.name}</p>
+          <div className="flex items-center gap-1 mt-1">
+            <Stars rating={biz.rating} />
+            <span className="text-xs text-gray-500">{biz.rating}</span>
+          </div>
+          <p className="text-xs text-gray-400 mt-0.5">{biz.reviews} reviews · {biz.dist}</p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="bg-white px-3 py-3 flex gap-3 border-b border-gray-100">
+      <PhotoPlaceholder cls={biz.photo} emoji={biz.emoji} className="w-20 h-16 rounded-xl flex-shrink-0 text-2xl" />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-gray-900 leading-tight">{biz.name}</p>
+        <p className="text-xs text-gray-500 mt-0.5">{biz.category}</p>
+        <div className="flex items-center gap-1 mt-1">
+          <Stars rating={biz.rating} />
+          <span className="text-xs font-medium text-gray-700">{biz.rating}</span>
+          <span className="text-xs text-gray-400">({biz.reviews} reviews)</span>
+        </div>
+        <p className="text-xs text-gray-400 mt-0.5">{biz.dist}</p>
+      </div>
+    </div>
+  );
+};
+
+/* ─── Section Header ───────────────────────────────── */
+const SectionHeader = ({ title, showArrow = true }) => (
+  <div className="flex items-center justify-between px-3 pt-4 pb-2">
+    <h2 className="text-sm font-bold text-gray-900">{title}</h2>
+    {showArrow && <span className="text-yelp text-sm font-semibold">›</span>}
+  </div>
+);
+
+/* ─── Social Post ──────────────────────────────────── */
+const SocialPost = ({ post }) => (
+  <div className="px-3 py-3 border-b border-gray-100 bg-white">
+    <div className="flex items-center gap-2 mb-2">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+        {post.user[0]}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1 flex-wrap">
+          <span className="text-xs font-semibold text-gray-900">{post.user}</span>
+          {post.elite && (
+            <span className="bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+              ⭐ New Elite '25
+            </span>
+          )}
+        </div>
+        <span className="text-xs text-gray-400">{post.time}</span>
+      </div>
+    </div>
+    <p className="text-xs font-semibold text-gray-900 mb-1">{post.title}</p>
+    <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">{post.body}</p>
+    <div className="flex items-center gap-4 mt-2">
+      <button className="flex items-center gap-1 text-xs text-gray-500">
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        {post.likes}
+      </button>
+      <button className="flex items-center gap-1 text-xs text-gray-500">
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        {post.comments}
+      </button>
+      <button className="ml-auto">
+        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+    </div>
+  </div>
+);
+
+/* ─── Event Card ───────────────────────────────────── */
+const EventCard = ({ event, large = false }) => {
+  if (large) {
+    return (
+      <div className="flex-shrink-0 w-52 bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+        <PhotoPlaceholder cls={event.photo} emoji={event.emoji} className="h-32 w-full text-4xl" />
+        <div className="p-2.5">
+          <span className="text-[10px] text-yelp font-semibold uppercase tracking-wide">{event.tag}</span>
+          <p className="text-xs font-semibold text-gray-900 leading-tight mt-0.5 line-clamp-2">{event.title}</p>
+          <div className="flex items-center gap-1 mt-1.5 text-[10px] text-gray-500">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            {event.date} · {event.time}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="bg-white mx-3 mb-2 rounded-xl overflow-hidden shadow-sm border border-gray-100 flex">
+      <PhotoPlaceholder cls={event.photo} emoji={event.emoji} className="w-20 h-20 flex-shrink-0 text-3xl" />
+      <div className="flex-1 p-2.5 min-w-0">
+        <span className="text-[10px] text-yelp font-semibold">{event.tag}</span>
+        <p className="text-xs font-semibold text-gray-900 leading-tight mt-0.5 line-clamp-2">{event.title}</p>
+        <div className="flex items-center gap-1 mt-1.5">
+          <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full">{event.date} · {event.time}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── Collection Card ──────────────────────────────── */
+const CollectionCard = ({ col }) => (
+  <div className="flex-shrink-0 w-36 rounded-xl overflow-hidden relative shadow-sm">
+    <PhotoPlaceholder cls={col.photo} emoji={col.emoji} className="h-24 w-full text-3xl" />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-2">
+      <p className="text-white text-xs font-semibold leading-tight">{col.title}</p>
+      <p className="text-white/70 text-[10px]">{col.count} places</p>
+    </div>
+  </div>
+);
+
+/* ─── Grand Opening Feature Card ───────────────────── */
+const GrandOpeningCard = () => (
+  <div className="mx-3 rounded-xl overflow-hidden shadow-sm border border-gray-100 relative">
+    <PhotoPlaceholder cls="photo-grad-3" emoji="🎉" className="h-40 w-full text-5xl" />
+    <div className="absolute top-2 left-2">
+      <span className="bg-yelp text-white text-[10px] font-bold px-2 py-1 rounded-full">Recently nearby</span>
+    </div>
+    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-3">
+      <p className="text-white text-sm font-bold leading-tight">Most Visited dish in the Financial District</p>
+      <p className="text-white/80 text-xs mt-0.5">Grand opening in SF last week you missed</p>
+      <div className="flex items-center gap-1.5 mt-1.5">
+        <Stars rating={4.5} />
+        <span className="text-white/90 text-xs">4.5</span>
+        <span className="text-white/60 text-xs">· 0.3 mi</span>
+      </div>
+    </div>
+  </div>
+);
+
+/* ─── Bottom Nav ───────────────────────────────────── */
+const BottomNav = () => {
+  const [active, setActive] = useState('home');
+  const items = [
+    { id: 'search', label: 'Search', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> },
+    { id: 'nearby', label: 'Near Me', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> },
+    { id: 'home', label: 'Home', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+    { id: 'dining', label: 'Dining', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg> },
+    { id: 'more', label: 'More', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg> },
+  ];
+  return (
+    <div className="flex bg-white border-t border-gray-200 pb-safe">
+      {items.map(item => (
+        <button key={item.id} onClick={() => setActive(item.id)}
+          className={`flex-1 flex flex-col items-center py-2 gap-0.5 transition-colors
+            ${active === item.id ? 'text-yelp' : 'text-gray-500'}`}>
+          {item.icon}
+          <span className="text-[10px] font-medium">{item.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+/* ─── Feed: Impromptu Mode ─────────────────────────── */
+const ImpromptuFeed = () => (
+  <div className="feed-enter bg-gray-50 pb-16">
+    {/* Trending & New */}
+    <div className="bg-white mb-2">
+      <SectionHeader title="Trending & New nearby this week" />
+      <div className="flex gap-3 px-3 pb-3 overflow-x-auto scrollbar-hide">
+        {RESTAURANTS.map(biz => <BusinessCard key={biz.id} biz={biz} horizontal />)}
+      </div>
+    </div>
+
+    {/* Popular Collections */}
+    <div className="bg-white mb-2">
+      <SectionHeader title="Popular collections this week" />
+      <div className="flex gap-3 px-3 pb-3 overflow-x-auto scrollbar-hide">
+        {COLLECTIONS.map(col => <CollectionCard key={col.id} col={col} />)}
+      </div>
+    </div>
+
+    {/* Grand Opening */}
+    <div className="bg-white mb-2 pb-4">
+      <SectionHeader title="Grand opening in SF last week you missed" showArrow={false} />
+      <GrandOpeningCard />
+    </div>
+
+    {/* Popular Topics */}
+    <div className="bg-white mb-2">
+      <SectionHeader title="Popular topics this week" />
+      {SOCIAL_POSTS_IMPROMPTU.map(post => <SocialPost key={post.id} post={post} />)}
+      <button className="w-full text-xs text-center text-yelp py-3 font-semibold">View all Topics ›</button>
+    </div>
+
+    {/* Upcoming Events */}
+    <div className="bg-white pb-4">
+      <SectionHeader title="Upcoming events this week" />
+      {EVENTS_IMPROMPTU.map(ev => <EventCard key={ev.id} event={ev} />)}
+    </div>
+  </div>
+);
+
+/* ─── Feed: Weekend Mode ───────────────────────────── */
+const WeekendFeed = () => (
+  <div className="feed-enter bg-gray-50 pb-16">
+    {/* Popular Events */}
+    <div className="bg-white mb-2">
+      <SectionHeader title="Popular events this weekend" />
+      <div className="flex gap-3 px-3 pb-3 overflow-x-auto scrollbar-hide">
+        {EVENTS_WEEKEND.map(ev => <EventCard key={ev.id} event={ev} large />)}
+      </div>
+    </div>
+
+    {/* Official Yelp Events */}
+    <div className="bg-white mb-2">
+      <SectionHeader title="Official Yelp events" />
+      <div className="flex gap-3 px-3 pb-3 overflow-x-auto scrollbar-hide">
+        {EVENTS_WEEKEND.slice(0, 2).map(ev => (
+          <div key={ev.id} className="flex-shrink-0 w-52 bg-white rounded-xl overflow-hidden shadow-sm border border-yelp/20">
+            <PhotoPlaceholder cls={ev.photo} emoji={ev.emoji} className="h-28 w-full text-4xl" />
+            <div className="p-2.5">
+              <div className="flex items-center gap-1 mb-1">
+                <span className="bg-yelp text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">OFFICIAL</span>
+              </div>
+              <p className="text-xs font-semibold text-gray-900 line-clamp-2">{ev.title}</p>
+              <p className="text-[10px] text-gray-500 mt-1">{ev.date} · {ev.time}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Best Things To Do */}
+    <div className="bg-white mb-2 pb-3">
+      <SectionHeader title="Best things to do this weekend" />
+      <div className="flex gap-3 px-3 overflow-x-auto scrollbar-hide">
+        {RESTAURANTS.slice(0, 3).map(biz => <BusinessCard key={biz.id} biz={biz} horizontal />)}
+      </div>
+    </div>
+
+    {/* Date Night Ideas */}
+    <div className="bg-white mb-2 pb-4">
+      <SectionHeader title="Date night ideas in SF" />
+      <div className="grid grid-cols-2 gap-2 px-3">
+        {DATE_NIGHT_PHOTOS.map(item => (
+          <div key={item.id} className="relative rounded-xl overflow-hidden">
+            <PhotoPlaceholder cls={item.photo} emoji={item.emoji} className="h-24 w-full text-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
+              <p className="text-white text-[11px] font-semibold leading-tight">{item.title}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Business Listings */}
+    <div className="bg-white mb-2">
+      <SectionHeader title="Top picks this weekend" />
+      {RESTAURANTS.slice(0, 3).map(biz => <BusinessCard key={biz.id} biz={biz} />)}
+    </div>
+
+    {/* Popular Topics Weekend */}
+    <div className="bg-white mb-2">
+      <SectionHeader title="Popular topics this weekend" />
+      {SOCIAL_POSTS_WEEKEND.map(post => <SocialPost key={post.id} post={post} />)}
+      <button className="w-full text-xs text-center text-yelp py-3 font-semibold">View all Topics ›</button>
+    </div>
+
+    {/* Most Saved */}
+    <div className="bg-white pb-4">
+      <SectionHeader title="Most saved this week" />
+      <div className="grid grid-cols-3 gap-1 px-3">
+        {MOST_SAVED.map(item => (
+          <PhotoPlaceholder key={item.id} cls={item.photo} emoji={item.emoji} className="h-24 rounded-lg text-2xl" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+/* ─── App ──────────────────────────────────────────── */
+const App = () => {
+  const [mode, setMode] = useState(getDefaultMode);
+  const isWeekend = mode === 'weekend';
+
+  return (
+    <div className="min-h-screen flex flex-col items-center py-10 px-4">
+      {/* Page Header */}
+      <div className="mb-6 text-center max-w-2xl">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Neighborhood Hub</h1>
+        <p className="text-gray-500 text-sm">
+          Time-aware feed that adapts to <em>when</em> you open it.
+          Weekdays = Impromptu · Weekends/Evenings = Weekend Planning.
+        </p>
+      </div>
+
+      {/* Mode Toggle */}
+      <div className="mb-6 flex items-center gap-3">
+        <span className="text-xs text-gray-500 font-medium">Mode:</span>
+        <div className="flex bg-gray-100 rounded-full p-1 gap-1">
+          <button
+            onClick={() => setMode('impromptu')}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all
+              ${!isWeekend ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>
+            Impromptu
+          </button>
+          <button
+            onClick={() => setMode('weekend')}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all
+              ${isWeekend ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>
+            Weekend Planning
+          </button>
+        </div>
+        <span className="text-xs text-gray-400 italic">
+          (auto-detected: {getDefaultMode() === 'weekend' ? 'Weekend' : 'Impromptu'})
+        </span>
+      </div>
+
+      {/* Mode Label */}
+      <div className={`mb-4 px-4 py-1.5 rounded-full text-xs font-semibold
+        ${isWeekend ? 'bg-blue-50 text-blue-700' : 'bg-red-50 text-yelp'}`}>
+        {isWeekend
+          ? '📅 Weekend Planning — surface events & save-worthy spots'
+          : '⚡ Impromptu — surface trending & right-now content'}
+      </div>
+
+      {/* Phone Frame */}
+      <div className="phone-shadow rounded-[44px] overflow-hidden bg-white" style={{width: 390, maxWidth: '100%'}}>
+        {/* Notch */}
+        <div className="bg-black h-8 flex items-center justify-center">
+          <div className="w-24 h-5 bg-black rounded-b-2xl border border-gray-800"></div>
+        </div>
+
+        <StatusBar />
+        <MapStrip />
+        <SearchBar />
+        <FilterChips />
+        <TabBar mode={mode} />
+
+        {/* Scrollable Feed */}
+        <div className="overflow-y-auto" style={{maxHeight: 600}}>
+          {isWeekend ? <WeekendFeed /> : <ImpromptuFeed />}
+        </div>
+
+        <BottomNav />
+
+        {/* Home indicator */}
+        <div className="bg-white flex justify-center py-2">
+          <div className="w-28 h-1 bg-gray-300 rounded-full"></div>
+        </div>
+      </div>
+
+      {/* Design Notes */}
+      <div className="mt-8 max-w-2xl grid grid-cols-2 gap-4 text-xs text-gray-600">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <h3 className="font-bold text-gray-900 mb-2">⚡ Impromptu Mode</h3>
+          <ul className="space-y-1 text-gray-500">
+            <li>• Trending & New nearby</li>
+            <li>• Popular collections</li>
+            <li>• Grand opening / FOMO content</li>
+            <li>• Local Q&A topics</li>
+            <li>• Upcoming events this week</li>
+          </ul>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <h3 className="font-bold text-gray-900 mb-2">📅 Weekend Mode</h3>
+          <ul className="space-y-1 text-gray-500">
+            <li>• Popular events this weekend</li>
+            <li>• Official Yelp events</li>
+            <li>• Date night ideas</li>
+            <li>• Business top picks</li>
+            <li>• Most saved this week</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
